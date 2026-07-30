@@ -16,15 +16,23 @@ const SKILL_RESOURCES: Record<string, string[]> = {
 
 export function analyzeSkillsGap(
   resume: ParsedResume,
-  jd: JobDescription
+  jd?: JobDescription
 ): SkillsGapResult {
   const currentSkills = resume.skills.all;
+  const hasJd = !!(jd && jd.rawText && jd.rawText.trim().length > 10);
+
+  if (!hasJd || !jd) {
+    return {
+      hasJd: false,
+      currentSkills,
+      requiredSkills: [],
+      missingSkills: [],
+      recommendedSkills: [],
+    };
+  }
+
   const resSkillsLower = new Set(currentSkills.map(s => s.toLowerCase()));
-
-  const requiredSkills = jd.requiredSkills.length > 0
-    ? jd.requiredSkills
-    : ["React", "TypeScript", "Node.js", "AWS", "Docker", "PostgreSQL", "CI/CD"];
-
+  const requiredSkills = jd.requiredSkills;
   const missingSkills: string[] = [];
 
   requiredSkills.forEach(req => {
@@ -39,12 +47,13 @@ export function analyzeSkillsGap(
       skill,
       priority: isHighPriority ? "High" : "Medium",
       category: isHighPriority ? "Core Infrastructure / Framework" : "Tooling & Backend",
-      reason: `Mentioned prominently in target Job Description but omitted in resume.`,
+      reason: `Mentioned in target Job Description but omitted in resume.`,
       resources: SKILL_RESOURCES[skill] || [`${skill} Official Documentation`, `FreeCodeCamp ${skill} Guide`],
     };
   });
 
   return {
+    hasJd: true,
     currentSkills,
     requiredSkills,
     missingSkills,

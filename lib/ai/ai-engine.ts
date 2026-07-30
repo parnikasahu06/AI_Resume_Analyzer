@@ -22,7 +22,7 @@ Return a valid JSON object ONLY with the following exact keys:
       "original": "string",
       "improved": "string",
       "rationale": "string",
-      "metricAdded": true
+      "metricAdded": boolean
     }
   ],
   "missingTechToHighlight": ["string"],
@@ -38,6 +38,10 @@ Return a valid JSON object ONLY with the following exact keys:
   "actionVerbsRecommended": ["string"]
 }
 
+CRITICAL RULE:
+Never invent numbers, percentages, revenue, accuracy scores, user counts, or achievements that are not present in the original resume text.
+If an original bullet point lacks a metric, use the explicit placeholder '[add measurable result if available]' instead of fabricating a fake number.
+
 Resume Text:
 ${resume.rawText.slice(0, 3000)}
 
@@ -48,7 +52,6 @@ ${jd ? jd.rawText.slice(0, 2000) : "General Tech Role"}
       const result = await model.generateContent(prompt);
       const text = result.response.text();
       
-      // Clean JSON output block if wrapped in markdown code fence
       const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
       const parsed = JSON.parse(cleanJson);
 
@@ -71,33 +74,61 @@ function generateHeuristicSuggestions(
 ): AiSuggestionsResult {
   const bulletRewrites: BulletRewrite[] = [];
 
-  // Extract original bullets from experience or raw text
+  // Extract actual original bullets from parsed resume sections
   let originalBullets: string[] = [];
-  if (resume.experience.length > 0 && resume.experience[0].description.length > 0) {
-    originalBullets = resume.experience.flatMap(e => e.description).slice(0, 3);
+
+  if (resume.experience.length > 0) {
+    originalBullets.push(...resume.experience.flatMap(e => e.description));
+  }
+  if (resume.internships.length > 0) {
+    originalBullets.push(...resume.internships.flatMap(e => e.description));
+  }
+  if (resume.projects.length > 0) {
+    originalBullets.push(...resume.projects.map(p => p.title + ": " + p.description));
+  }
+
+  if (originalBullets.length === 0) {
+    // Extract raw text lines starting with bullets or dashes
+    const bulletLines = resume.rawText.split("\n").map(l => l.trim()).filter(l => /^[-•*]/.test(l));
+    if (bulletLines.length > 0) {
+      originalBullets = bulletLines.map(l => l.replace(/^[-•*]\s*/, ""));
+    }
   }
 
   if (originalBullets.length === 0) {
     originalBullets = [
-      "Worked on web applications using JavaScript and React.",
-      "Responsible for building backend APIs and database tables.",
-      "Helped the engineering team deliver features on time."
+      "Worked on web application components using modern web frameworks.",
+      "Responsible for building backend services and database queries.",
+      "Collaborated with engineering team to deliver project features."
     ];
   }
 
-  const actionVerbs = ["Architected", "Spearheaded", "Engineered", "Optimized", "Orchestrated", "Scaled"];
-  const metrics = ["by 35%", "handling 50,000+ daily requests", "reducing latency by 40%", "saving 12 hours of weekly manual work"];
+  const selectedBullets = originalBullets.slice(0, 4);
+  const actionVerbs = ["Architected", "Spearheaded", "Engineered", "Optimized", "Scaled", "Accelerated"];
 
-  originalBullets.forEach((bullet, idx) => {
+  selectedBullets.forEach((bullet, idx) => {
     const verb = actionVerbs[idx % actionVerbs.length];
-    const metric = metrics[idx % metrics.length];
-    const cleanBullet = bullet.replace(/^(worked on|responsible for|helped|assisted with)\s*/i, "");
+    const cleanBullet = bullet.replace(/^(worked on|responsible for|helped|assisted with|contributed to)\s*/i, "");
+    
+    // Check if original bullet already contains an explicit metric (%, $, numbers, user count)
+    const hasMetric = /\b\d+(%|\+|k|x|\s*percent|\s*dollars|\s*users|\s*teams)?\b/i.test(bullet);
+
+    let improved = "";
+    let rationale = "";
+
+    if (hasMetric) {
+      improved = `${verb} ${cleanBullet.replace(/\.$/, "")}.`;
+      rationale = "Replaced opening phrase with strong action verb while preserving the original verified metric.";
+    } else {
+      improved = `${verb} ${cleanBullet.replace(/\.$/, "")}, achieving [add measurable result if available].`;
+      rationale = "Replaced weak opening phrase with strong action verb and added a metric placeholder [add measurable result if available].";
+    }
 
     bulletRewrites.push({
       original: bullet,
-      improved: `${verb} ${cleanBullet.replace(/\.$/, "")}, ${metric}.`,
-      rationale: "Replaced weak opening phrase with strong action verb and added a quantifiable outcome metric.",
-      metricAdded: true,
+      improved,
+      rationale,
+      metricAdded: !hasMetric,
     });
   });
 
@@ -105,7 +136,8 @@ function generateHeuristicSuggestions(
     ? jd.requiredSkills.filter(s => !resume.skills.all.map(x => x.toLowerCase()).includes(s.toLowerCase())).slice(0, 5)
     : ["Docker", "TypeScript", "AWS Cloud", "GraphQL", "Redis Caching"];
 
-  const enhancedSummary = `Results-driven ${resume.experience[0]?.role || "Software Engineer"} with proven expertise in ${resume.skills.technical.slice(0, 4).join(", ") || "full-stack development"}. Demonstrated track record of building high-performance applications, scaling backend services, and driving cross-functional engineering excellence.`;
+  const userRole = resume.experience[0]?.role || resume.internships[0]?.role || "Software Engineer";
+  const enhancedSummary = `Results-driven ${userRole} with expertise in ${resume.skills.technical.slice(0, 4).join(", ") || "full-stack engineering"}. Demonstrated track record of building reliable software components, optimizing application workflows, and driving technical excellence.`;
 
   return {
     bulletRewrites,
@@ -116,9 +148,9 @@ function generateHeuristicSuggestions(
       { weakWord: "helped", suggestion: "Collaborated / Enabled", example: "Collaborated with cross-functional teams to accelerate release cycles" }
     ],
     achievementIdeas: [
-      "Highlight performance improvements with explicit percentages (e.g., 'Reduced initial bundle size by 30%').",
-      "Mention scale metrics such as user volume, API request throughput, or database row counts.",
-      "Include hackathon awards, patent filings, or open-source contributions."
+      "Include explicit quantifiable impact if available (e.g. 'Reduced bundle size by [add % if available]').",
+      "Mention scale metrics such as request volume, active users, or throughput if known.",
+      "Highlight hackathon awards, patent filings, or open-source contributions."
     ],
     enhancedSummary,
     actionVerbsRecommended: ["Architected", "Spearheaded", "Engineered", "Optimized", "Scaled", "Accelerated", "Streamlined"],

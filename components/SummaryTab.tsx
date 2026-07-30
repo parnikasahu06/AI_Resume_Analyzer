@@ -2,14 +2,29 @@
 
 import React from "react";
 import { ParsedResume } from "@/types";
-import { User, Mail, Phone, Linkedin, Github, Award, BookOpen, Briefcase, Code, FileCheck } from "lucide-react";
+import { User, Mail, Phone, Linkedin, Github, Award, BookOpen, Briefcase, Code, FileCheck, Users, Sparkles, HelpCircle } from "lucide-react";
 
 interface SummaryTabProps {
   resume: ParsedResume;
 }
 
 export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
-  const { contact, summary, skills, experience, education, projects, certifications, achievements } = resume;
+  const {
+    contact,
+    summary,
+    isSummaryInferred,
+    skills,
+    experience,
+    isExperienceInferred,
+    internships,
+    leadership,
+    extracurricular,
+    neutralItems,
+    education,
+    projects,
+    certifications,
+    achievements,
+  } = resume;
 
   return (
     <div className="space-y-6">
@@ -58,10 +73,19 @@ export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
           </div>
         </div>
 
-        {/* Executive Summary */}
+        {/* Executive Summary with Provenance Badge */}
         {summary && (
-          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Parsed Professional Summary</h3>
+          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Parsed Professional Summary</h3>
+              <span className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${
+                isSummaryInferred
+                  ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300"
+                  : "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300"
+              }`}>
+                {isSummaryInferred ? "AI Inferred Summary" : "Extracted from Resume"}
+              </span>
+            </div>
             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800">
               "{summary}"
             </p>
@@ -101,28 +125,109 @@ export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
         )}
       </div>
 
-      {/* Experience & Education Grid */}
+      {/* Experience, Internships, Leadership, Extracurricular Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Work Experience */}
+        {/* Professional Work Experience */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
-          <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-            <Briefcase className="h-5 w-5 text-emerald-500" />
-            <span>Work Experience</span>
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+              <Briefcase className="h-5 w-5 text-emerald-500" />
+              <span>Professional Experience ({experience.length})</span>
+            </h3>
+            {isExperienceInferred && (
+              <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 rounded">
+                Demo Fallback
+              </span>
+            )}
+          </div>
           <div className="space-y-4">
-            {experience.map((exp, idx) => (
-              <div key={idx} className="border-l-2 border-brand-500 pl-4 space-y-1">
-                <h4 className="font-semibold text-sm text-slate-900 dark:text-white">{exp.role}</h4>
-                <p className="text-xs font-medium text-brand-600 dark:text-brand-400">{exp.company} • <span className="text-slate-400">{exp.duration}</span></p>
-                <ul className="list-disc list-inside text-xs text-slate-600 dark:text-slate-400 space-y-1 mt-2">
-                  {exp.description.map((bullet, bIdx) => (
-                    <li key={bIdx}>{bullet}</li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+            {experience.length > 0 ? (
+              experience.map((exp, idx) => (
+                <div key={idx} className="border-l-2 border-emerald-500 pl-4 space-y-1">
+                  <h4 className="font-semibold text-sm text-slate-900 dark:text-white">{exp.role}</h4>
+                  <p className="text-xs font-medium text-emerald-600 dark:text-emerald-400">{exp.company} {exp.duration ? `• ${exp.duration}` : ''}</p>
+                  {exp.description.length > 0 && (
+                    <ul className="list-disc list-inside text-xs text-slate-600 dark:text-slate-400 space-y-1 mt-2">
+                      {exp.description.map((bullet, bIdx) => (
+                        <li key={bIdx}>{bullet}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-slate-500 italic">No formal professional work experience entries detected.</p>
+            )}
           </div>
         </div>
+
+        {/* Internships Section (if any) */}
+        {internships && internships.length > 0 && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+            <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+              <Briefcase className="h-5 w-5 text-indigo-500" />
+              <span>Internships & Trainee Roles ({internships.length})</span>
+            </h3>
+            <div className="space-y-4">
+              {internships.map((item, idx) => (
+                <div key={idx} className="border-l-2 border-indigo-500 pl-4 space-y-1">
+                  <h4 className="font-semibold text-sm text-slate-900 dark:text-white">{item.role}</h4>
+                  <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400">{item.company} {item.duration ? `• ${item.duration}` : ''}</p>
+                  {item.description.length > 0 && (
+                    <ul className="list-disc list-inside text-xs text-slate-600 dark:text-slate-400 space-y-1 mt-2">
+                      {item.description.map((bullet, bIdx) => (
+                        <li key={bIdx}>{bullet}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Leadership & Positions of Responsibility */}
+        {leadership && leadership.length > 0 && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+            <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+              <Users className="h-5 w-5 text-amber-500" />
+              <span>Leadership & Responsibility ({leadership.length})</span>
+            </h3>
+            <div className="space-y-4">
+              {leadership.map((item, idx) => (
+                <div key={idx} className="border-l-2 border-amber-500 pl-4 space-y-1">
+                  <h4 className="font-semibold text-sm text-slate-900 dark:text-white">{item.role}</h4>
+                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400">{item.organization} {item.duration ? `• ${item.duration}` : ''}</p>
+                  {item.description.length > 0 && (
+                    <ul className="list-disc list-inside text-xs text-slate-600 dark:text-slate-400 space-y-1 mt-2">
+                      {item.description.map((bullet, bIdx) => (
+                        <li key={bIdx}>{bullet}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Extracurricular Activities */}
+        {extracurricular && extracurricular.length > 0 && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
+            <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+              <Sparkles className="h-5 w-5 text-purple-500" />
+              <span>Extracurricular Activities ({extracurricular.length})</span>
+            </h3>
+            <div className="space-y-3">
+              {extracurricular.map((item, idx) => (
+                <div key={idx} className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800">
+                  <p className="font-semibold text-sm text-slate-900 dark:text-white">{item.title}</p>
+                  {item.organization && <p className="text-xs text-slate-500 dark:text-slate-400">{item.organization}</p>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Education & Certifications */}
         <div className="space-y-6">
@@ -158,6 +263,21 @@ export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
             </div>
           )}
         </div>
+
+        {/* Neutral / Uncategorized Extracted Notes (if any) */}
+        {neutralItems && neutralItems.length > 0 && (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-3 col-span-1 md:col-span-2">
+            <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2 text-slate-500">
+              <HelpCircle className="h-4 w-4" />
+              <span>Other Extracted Lines ({neutralItems.length})</span>
+            </h3>
+            <ul className="space-y-1 text-xs text-slate-500 dark:text-slate-400 italic">
+              {neutralItems.slice(0, 6).map((item, i) => (
+                <li key={i}>• {item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

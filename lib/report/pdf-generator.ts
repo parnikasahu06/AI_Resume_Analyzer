@@ -115,8 +115,8 @@ export function generateReportHtml(report: CompleteAnalysisReport): string {
 
     <div class="card">
       <div class="card-title">Job Match Similarity</div>
-      <div class="card-value">${jobMatch.matchPercentage}%</div>
-      <p style="font-size: 12px; color: #64748b; margin: 0;">TF-IDF Cosine Similarity Vector Math</p>
+      <div class="card-value">${jobMatch.hasJd && jobMatch.matchPercentage !== null ? `${jobMatch.matchPercentage}%` : 'Not Calculated'}</div>
+      <p style="font-size: 12px; color: #64748b; margin: 0;">${jobMatch.hasJd ? 'TF-IDF Cosine Similarity Vector Math' : 'Requires Job Description'}</p>
     </div>
 
     <div class="card">
@@ -125,6 +125,17 @@ export function generateReportHtml(report: CompleteAnalysisReport): string {
       <p style="font-size: 12px; color: #64748b; margin: 0;">${grammar.readabilityGrade}</p>
     </div>
   </div>
+
+  ${report.pdfQuality ? `
+  <div class="section-title">PDF & Document Parsing Quality Report (Parsing Risk: ${report.pdfQuality.overallRisk})</div>
+  <div style="background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; margin-bottom: 16px;">
+    <p style="margin: 0 0 6px 0;"><strong>File Type:</strong> ${report.pdfQuality.fileType} | <strong>File Size:</strong> ${report.pdfQuality.fileSize} | <strong>Page Count:</strong> ${report.pdfQuality.pageCount}</p>
+    <p style="margin: 0 0 6px 0;"><strong>Text Stream:</strong> Successful | <strong>Extracted Word Count:</strong> ${report.pdfQuality.extractedWordCount} words</p>
+    <p style="margin: 0 0 6px 0;"><strong>Hyperlinks:</strong> ${report.pdfQuality.hasHyperlinks} | <strong>Unusual Formatting:</strong> ${report.pdfQuality.unusualFormatting}</p>
+    <p style="margin: 0 0 6px 0;"><strong>Tables & Layout:</strong> ${report.pdfQuality.tablesOrComplexLayout} | <strong>Multi-Column Risk:</strong> ${report.pdfQuality.multiColumnParsingRisk}</p>
+    <p style="margin: 0;"><strong>Scanned PDF Risk:</strong> ${report.pdfQuality.scannedPdfRisk} | <strong>ATS Extraction Quality:</strong> ${report.pdfQuality.atsTextExtractionQuality}</p>
+  </div>
+  ` : ''}
 
   <div class="section-title">Critical ATS Fixes & Action Items</div>
   <ul>

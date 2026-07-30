@@ -1,12 +1,14 @@
 "use client";
 
 import React from "react";
-import { Sparkles, FileText, Sun, Moon, Github, CheckCircle2 } from "lucide-react";
+import { Sparkles, FileText, Sun, Moon, Trash2, ShieldCheck } from "lucide-react";
 
 interface NavbarProps {
   darkMode: boolean;
   setDarkMode: (val: boolean) => void;
   onLoadSample: () => void;
+  onClearSession?: () => void;
+  hasData?: boolean;
   isAnalyzing: boolean;
 }
 
@@ -14,6 +16,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   darkMode,
   setDarkMode,
   onLoadSample,
+  onClearSession,
+  hasData = false,
   isAnalyzing,
 }) => {
   return (
@@ -35,7 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Optimize your resume for Applicant Tracking Systems
+              In-Memory ATS Resume Optimization
             </p>
           </div>
         </div>
@@ -53,6 +57,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <span>Load Demo Resume & JD</span>
           </button>
 
+          {/* Clear Session Control Button */}
+          {hasData && onClearSession && (
+            <button
+              onClick={onClearSession}
+              disabled={isAnalyzing}
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 hover:bg-rose-100 dark:hover:bg-rose-900/70 transition-all"
+              title="Purge uploaded resume, JD text, analysis results, and browser state"
+            >
+              <Trash2 className="h-3.5 w-3.5 text-rose-500" />
+              <span>Clear Session</span>
+            </button>
+          )}
+
           {/* Dark Mode Toggle */}
           <button
             onClick={() => setDarkMode(!darkMode)}
@@ -61,12 +78,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             {darkMode ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-600" />}
           </button>
-
-          {/* GitHub / Tech Stack Badge */}
-          <div className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-xs font-medium text-slate-600 dark:text-slate-300">
-            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-            <span>Hackathon Ready</span>
-          </div>
         </div>
       </div>
     </header>

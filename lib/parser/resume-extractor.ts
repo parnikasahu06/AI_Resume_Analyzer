@@ -17,9 +17,18 @@ const COMMON_SKILLS = [
   "Leadership", "Communication", "Problem Solving", "Teamwork", "Agile", "Scrum", "Project Management", "Time Management", "Critical Thinking", "Mentorship"
 ];
 
+const CLUB_LEADERSHIP_KEYWORDS = [
+  "club", "csea", "nss", "ieee", "rotaract", "student coordinator", "event management",
+  "public speaking", "cultural secretary", "sports secretary", "placement coordinator",
+  "fest coordinator", "volunteer", "society", "student council", "campus ambassador",
+  "event management team", "club member", "organizer", "head of department"
+];
+
+const INTERN_KEYWORDS = ["intern", "internship", "trainee", "apprentice"];
+
 export function extractResumeData(rawText: string): ParsedResume {
   const lines = rawText.split("\n").map(l => l.trim()).filter(Boolean);
-  
+
   // 1. Contact Information Extraction
   const emailMatch = rawText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
   const email = emailMatch ? emailMatch[0] : "";
@@ -33,21 +42,19 @@ export function extractResumeData(rawText: string): ParsedResume {
   const githubMatch = rawText.match(/(github\.com\/[a-zA-Z0-9_-]+)/i);
   const github = githubMatch ? githubMatch[0] : undefined;
 
-  // Name heuristic: Usually top 1-3 lines before email/phone
+  // Name heuristic: Top non-contact line
   let name = "Candidate";
   if (lines.length > 0) {
     const firstLine = lines[0];
-    if (!firstLine.includes("@") && firstLine.length < 40) {
+    if (!firstLine.includes("@") && firstLine.length < 40 && !/resume|cv|curriculum/i.test(firstLine)) {
       name = firstLine.replace(/[^a-zA-Z\s]/g, "").trim() || "Candidate";
     }
   }
 
   // 2. Skills Extraction
   const matchedSkills: string[] = [];
-  const lowerText = rawText.toLowerCase();
 
   COMMON_SKILLS.forEach(skill => {
-    // Regex boundary check for exact word matching
     const escaped = skill.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
     const regex = new RegExp(`\\b${escaped}\\b`, "i");
     if (regex.test(rawText)) {
@@ -59,10 +66,15 @@ export function extractResumeData(rawText: string): ParsedResume {
   const softSkills = matchedSkills.filter(s => softSkillsKeywords.includes(s));
   const techSkills = matchedSkills.filter(s => !softSkillsKeywords.includes(s));
 
-  // 3. Section Parsing (Summary, Experience, Education, Projects, Certifications)
-  const sections = parseSections(rawText);
+  // 3. Section Parsing with Contextual Classification
+  const parsedSections = parseSectionsGranular(rawText);
 
   const wordCount = rawText.split(/\s+/).filter(Boolean).length;
+
+  const isSummaryInferred = !parsedSections.summary;
+  const summary = parsedSections.summary || generateFallbackSummary(matchedSkills);
+
+  const isExperienceInferred = parsedSections.experience.length === 0 && parsedSections.internships.length === 0 && parsedSections.leadership.length === 0;
 
   return {
     contact: {
@@ -72,41 +84,105 @@ export function extractResumeData(rawText: string): ParsedResume {
       linkedin,
       github,
     },
-    summary: sections.summary || generateFallbackSummary(rawText, matchedSkills),
+    summary,
+    isSummaryInferred,
     skills: {
       technical: techSkills,
       soft: softSkills,
       tools: techSkills.filter(s => ["Git", "Docker", "VS Code", "Postman", "Vite", "Webpack", "Vercel"].includes(s)),
       all: matchedSkills,
     },
-    experience: sections.experience.length > 0 ? sections.experience : extractFallbackExperience(rawText),
-    education: sections.education.length > 0 ? sections.education : extractFallbackEducation(rawText),
-    projects: sections.projects,
-    certifications: sections.certifications,
-    achievements: sections.achievements,
+    experience: parsedSections.experience,
+    isExperienceInferred,
+    internships: parsedSections.internships,
+    leadership: parsedSections.leadership,
+    extracurricular: parsedSections.extracurricular,
+    neutralItems: parsedSections.neutralItems,
+    education: parsedSections.education,
+    projects: parsedSections.projects,
+    certifications: parsedSections.certifications,
+    achievements: parsedSections.achievements,
     rawText,
     wordCount,
   };
 }
 
-interface ExpItem {
-  company: string;
-  role: string;
-  duration: string;
-  description: string[];
+interface ParsedSectionsResult {
+  summary: string;
+  experience: ParsedResume['experience'];
+  internships: ParsedResume['internships'];
+  leadership: ParsedResume['leadership'];
+  extracurricular: ParsedResume['extracurricular'];
+  neutralItems: string[];
+  education: ParsedResume['education'];
+  projects: ParsedResume['projects'];
+  certifications: string[];
+  achievements: string[];
 }
 
-function parseSections(text: string) {
+function parseSectionsGranular(text: string): ParsedSectionsResult {
   const lines = text.split("\n");
   const summaryLines: string[] = [];
   const experience: ParsedResume['experience'] = [];
+  const internships: ParsedResume['internships'] = [];
+  const leadership: ParsedResume['leadership'] = [];
+  const extracurricular: ParsedResume['extracurricular'] = [];
+  const neutralItems: string[] = [];
   const education: ParsedResume['education'] = [];
   const projects: ParsedResume['projects'] = [];
   const certifications: string[] = [];
   const achievements: string[] = [];
 
   let currentSection = "";
-  let currentExpItem: ExpItem | null = null;
+  let currentItem: { title: string; org: string; duration: string; bullets: string[] } | null = null;
+
+  function flushCurrentItem() {
+    if (!currentItem) return;
+
+    const fullItemText = `${currentItem.title} ${currentItem.org}`.toLowerCase();
+    const isIntern = INTERN_KEYWORDS.some(kw => fullItemText.includes(kw)) || currentSection === "internships";
+    const isClubOrLeadership = CLUB_LEADERSHIP_KEYWORDS.some(kw => fullItemText.includes(kw)) || currentSection === "leadership" || currentSection === "extracurricular";
+
+    if (isIntern) {
+      internships.push({
+        company: currentItem.org || "Organization",
+        role: currentItem.title || "Intern",
+        duration: currentItem.duration || "Period",
+        description: currentItem.bullets,
+      });
+    } else if (isClubOrLeadership) {
+      if (currentSection === "extracurricular" || fullItemText.includes("member") || fullItemText.includes("participant")) {
+        extracurricular.push({
+          title: currentItem.title || "Activity",
+          organization: currentItem.org,
+          description: currentItem.bullets,
+        });
+      } else {
+        leadership.push({
+          role: currentItem.title || "Position of Responsibility",
+          organization: currentItem.org || "Organization / Club",
+          duration: currentItem.duration,
+          description: currentItem.bullets,
+        });
+      }
+    } else if (currentSection === "experience" || currentSection === "work") {
+      experience.push({
+        company: currentItem.org || "Company",
+        role: currentItem.title || "Position",
+        duration: currentItem.duration || "Present",
+        description: currentItem.bullets,
+      });
+    } else if (currentSection === "projects") {
+      projects.push({
+        title: currentItem.title,
+        description: [currentItem.org, ...currentItem.bullets].filter(Boolean).join(" - "),
+      });
+    } else {
+      neutralItems.push(`${currentItem.title} ${currentItem.org ? '| ' + currentItem.org : ''}`);
+    }
+
+    currentItem = null;
+  }
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -114,57 +190,117 @@ function parseSections(text: string) {
 
     const lower = trimmed.toLowerCase();
 
-    // Identify Section Headers
-    if (lower.includes("summary") || lower.includes("profile") || lower.includes("objective")) {
+    // Section Header Matching
+    if (/^(summary|professional summary|profile|objective|about me)[\s:]*$/i.test(trimmed) || lower === "summary" || lower === "profile") {
+      flushCurrentItem();
       currentSection = "summary";
       continue;
-    } else if (lower.includes("experience") || lower.includes("work history") || lower.includes("employment")) {
+    }
+    if (/^(work experience|professional experience|employment history|work history|career)[\s:]*$/i.test(trimmed) || lower.includes("work experience") || lower.includes("employment")) {
+      flushCurrentItem();
       currentSection = "experience";
       continue;
-    } else if (lower.includes("education") || lower.includes("academic")) {
+    }
+    if (/^(internship|internships|industrial training)[\s:]*$/i.test(trimmed) || lower.includes("internship")) {
+      flushCurrentItem();
+      currentSection = "internships";
+      continue;
+    }
+    if (/^(leadership|positions of responsibility|position of responsibility|responsibilities|student leadership)[\s:]*$/i.test(trimmed) || lower.includes("position of responsibility") || lower.includes("leadership")) {
+      flushCurrentItem();
+      currentSection = "leadership";
+      continue;
+    }
+    if (/^(extracurricular|extra-curricular|co-curricular|activities|volunteering|clubs|societies)[\s:]*$/i.test(trimmed) || lower.includes("extracurricular") || lower.includes("co-curricular")) {
+      flushCurrentItem();
+      currentSection = "extracurricular";
+      continue;
+    }
+    if (/^(education|academic qualification|academic background|academics)[\s:]*$/i.test(trimmed) || lower.includes("education")) {
+      flushCurrentItem();
       currentSection = "education";
       continue;
-    } else if (lower.includes("project")) {
+    }
+    if (/^(projects|academic projects|key projects|personal projects)[\s:]*$/i.test(trimmed) || lower.includes("projects")) {
+      flushCurrentItem();
       currentSection = "projects";
       continue;
-    } else if (lower.includes("certif")) {
+    }
+    if (/^(certifications|licenses & certifications|courses|certif)[\s:]*$/i.test(trimmed) || lower.includes("certif")) {
+      flushCurrentItem();
       currentSection = "certifications";
       continue;
-    } else if (lower.includes("achievement") || lower.includes("award") || lower.includes("honor")) {
+    }
+    if (/^(achievements|awards|honors|accomplishments)[\s:]*$/i.test(trimmed) || lower.includes("achievement") || lower.includes("awards")) {
+      flushCurrentItem();
       currentSection = "achievements";
       continue;
     }
 
-    // Parse according to current section
+    // Process Content by Section
     if (currentSection === "summary") {
       summaryLines.push(trimmed);
-    } else if (currentSection === "experience") {
+    } else if (
+      currentSection === "experience" ||
+      currentSection === "internships" ||
+      currentSection === "leadership" ||
+      currentSection === "extracurricular"
+    ) {
       if (trimmed.startsWith("-") || trimmed.startsWith("•") || trimmed.startsWith("*")) {
-        if (currentExpItem) {
-          currentExpItem.description.push(trimmed.replace(/^[-•*]\s*/, ""));
+        if (currentItem) {
+          currentItem.bullets.push(trimmed.replace(/^[-•*]\s*/, ""));
+        } else {
+          neutralItems.push(trimmed.replace(/^[-•*]\s*/, ""));
         }
       } else {
-        if (trimmed.length > 5) {
-          if (currentExpItem && currentExpItem.description.length > 0) {
-            experience.push(currentExpItem);
-            currentExpItem = null;
+        if (trimmed.length > 3) {
+          flushCurrentItem();
+
+          // Parse role and organization without inventing generic titles
+          let title = trimmed;
+          let org = "";
+          const dateStr = extractDateFromLine(trimmed);
+
+          if (trimmed.includes("|")) {
+            const parts = trimmed.split("|");
+            title = parts[0].trim();
+            org = parts[1] ? parts[1].trim() : "";
+          } else if (trimmed.includes(" at ")) {
+            const parts = trimmed.split(" at ");
+            title = parts[0].trim();
+            org = parts[1] ? parts[1].trim() : "";
+          } else if (trimmed.includes(" - ")) {
+            const parts = trimmed.split(" - ");
+            title = parts[0].trim();
+            org = parts[1] ? parts[1].trim() : "";
           }
-          if (!currentExpItem) {
-            currentExpItem = {
-              company: trimmed.split("|")[0] || trimmed,
-              role: trimmed.split("|")[1] || "Software Professional",
-              duration: extractDateFromLine(trimmed) || "Present",
-              description: []
-            };
-          }
+
+          currentItem = {
+            title,
+            org,
+            duration: dateStr,
+            bullets: [],
+          };
         }
       }
     } else if (currentSection === "education") {
       if (trimmed.length > 5) {
+        let degree = trimmed;
+        let institution = "";
+        if (trimmed.includes("|")) {
+          const parts = trimmed.split("|");
+          degree = parts[0].trim();
+          institution = parts[1] ? parts[1].trim() : "";
+        } else if (trimmed.includes(" - ")) {
+          const parts = trimmed.split(" - ");
+          degree = parts[0].trim();
+          institution = parts[1] ? parts[1].trim() : "";
+        }
+
         education.push({
-          degree: trimmed.split("|")[0] || trimmed,
-          institution: trimmed.split("|")[1] || "University / College",
-          year: extractDateFromLine(trimmed) || undefined
+          degree,
+          institution,
+          year: extractDateFromLine(trimmed) || undefined,
         });
       }
     } else if (currentSection === "projects") {
@@ -175,23 +311,30 @@ function parseSections(text: string) {
       } else {
         projects.push({
           title: trimmed.split("|")[0] || trimmed,
-          description: trimmed.split("|")[1] || trimmed
+          description: trimmed.split("|")[1] || trimmed,
         });
       }
     } else if (currentSection === "certifications") {
       certifications.push(trimmed.replace(/^[-•*]\s*/, ""));
     } else if (currentSection === "achievements") {
       achievements.push(trimmed.replace(/^[-•*]\s*/, ""));
+    } else {
+      // Neutral unclassified lines
+      if (trimmed.length > 10 && !trimmed.startsWith("http")) {
+        neutralItems.push(trimmed);
+      }
     }
   }
 
-  if (currentExpItem && (currentExpItem as ExpItem).description.length > 0) {
-    experience.push(currentExpItem);
-  }
+  flushCurrentItem();
 
   return {
     summary: summaryLines.join(" "),
     experience,
+    internships,
+    leadership,
+    extracurricular,
+    neutralItems,
     education,
     projects,
     certifications,
@@ -200,48 +343,14 @@ function parseSections(text: string) {
 }
 
 function extractDateFromLine(line: string): string {
-  const match = line.match(/\b(20\d{2}|19\d{2})\b/g);
+  const match = line.match(/\b(20\d{2}|19\d{2}|\bpresent\b|\bcurrent\b)\b/gi);
   if (match) {
     return match.join(" – ");
   }
   return "";
 }
 
-function generateFallbackSummary(rawText: string, skills: string[]): string {
+function generateFallbackSummary(skills: string[]): string {
   const topSkills = skills.slice(0, 5).join(", ");
-  return `Motivated professional with expertise in ${topSkills || "software engineering and modern technologies"}. Demonstrated ability to deliver quality solutions and collaborate effectively within dynamic team environments.`;
-}
-
-function extractFallbackExperience(text: string): ParsedResume['experience'] {
-  const lines = text.split("\n").filter(l => l.includes("Engineer") || l.includes("Developer") || l.includes("Lead") || l.includes("Manager"));
-  if (lines.length > 0) {
-    return lines.slice(0, 3).map((l, i) => ({
-      company: `Organization ${i + 1}`,
-      role: l.trim(),
-      duration: "Recent",
-      description: ["Contributed to core product architecture and key features implementation."]
-    }));
-  }
-  return [{
-    company: "Software Company",
-    role: "Full Stack Developer",
-    duration: "2021 – Present",
-    description: ["Developed scalable software components and improved operational efficiency."]
-  }];
-}
-
-function extractFallbackEducation(text: string): ParsedResume['education'] {
-  const lower = text.toLowerCase();
-  if (lower.includes("bachelor") || lower.includes("bs") || lower.includes("degree")) {
-    return [{
-      degree: "Bachelor of Science in Computer Science",
-      institution: "Accredited University",
-      year: "2020"
-    }];
-  }
-  return [{
-    degree: "Degree / Diploma in Technology",
-    institution: "University",
-    year: "2021"
-  }];
+  return `Candidate demonstrating technical capabilities in ${topSkills || "relevant industry domain"}.`;
 }

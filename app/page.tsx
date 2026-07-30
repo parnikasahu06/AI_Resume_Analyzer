@@ -14,7 +14,7 @@ import { GrammarTab } from "@/components/GrammarTab";
 import { ReportTab } from "@/components/ReportTab";
 import { CompleteAnalysisReport } from "@/types";
 import { SAMPLE_RESUME_TEXT, SAMPLE_JOB_DESCRIPTION_TEXT } from "@/lib/sample-data";
-import { Sparkles, ArrowRight, Loader2, AlertCircle, CheckCircle2, ShieldCheck, Zap, Award } from "lucide-react";
+import { Sparkles, ArrowRight, Loader2, AlertCircle, ShieldCheck, Zap, Award, Trash2, Lock } from "lucide-react";
 
 export default function DashboardPage() {
   const [darkMode, setDarkMode] = useState(false);
@@ -88,6 +88,26 @@ export default function DashboardPage() {
     handleAnalyze(true);
   };
 
+  const handleClearSession = () => {
+    setFile(null);
+    setRawText("");
+    setJdText("");
+    setAnalysisReport(null);
+    setError(null);
+    setActiveTab("home");
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn("Storage purge warning:", e);
+      }
+    }
+  };
+
+  const hasActiveData = !!(file || rawText.trim() || jdText.trim() || analysisReport);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors">
       {/* Header Navigation Bar */}
@@ -95,6 +115,8 @@ export default function DashboardPage() {
         darkMode={darkMode}
         setDarkMode={setDarkMode}
         onLoadSample={handleLoadSample}
+        onClearSession={handleClearSession}
+        hasData={hasActiveData}
         isAnalyzing={isAnalyzing}
       />
 
@@ -158,6 +180,28 @@ export default function DashboardPage() {
                 </div>
               </div>
 
+              {/* Data Privacy Notice Banner */}
+              <div className="p-4 bg-slate-900 dark:bg-slate-900/90 border border-slate-800 rounded-2xl text-slate-300 text-xs space-y-2 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2 text-white font-bold text-sm">
+                    <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+                    <span>Data Processing & Privacy Notice</span>
+                  </div>
+                  {hasActiveData && (
+                    <button
+                      onClick={handleClearSession}
+                      className="text-rose-400 hover:text-rose-300 font-semibold text-[11px] underline flex items-center space-x-1"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      <span>Clear Session Data</span>
+                    </button>
+                  )}
+                </div>
+                <p className="leading-relaxed text-slate-300 dark:text-slate-400">
+                  Uploaded resume files, extracted text, and job descriptions are processed <strong>strictly in-memory</strong> during your active session. No database, server disk storage, tracking cookies, or persistent storage are used to store your resume content. When AI suggestions are generated, text snippets are analyzed via the Google Gemini API. Use the <strong>Clear Resume / Clear Session</strong> control below at any time to purge all browser state.
+                </p>
+              </div>
+
               {/* Upload Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <ResumeUploader
@@ -172,8 +216,8 @@ export default function DashboardPage() {
                 />
               </div>
 
-              {/* Action Button */}
-              <div className="flex justify-center pt-2">
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
                 <button
                   onClick={() => handleAnalyze(false)}
                   disabled={isAnalyzing || (!file && !rawText.trim())}
@@ -191,6 +235,17 @@ export default function DashboardPage() {
                     </>
                   )}
                 </button>
+
+                {hasActiveData && (
+                  <button
+                    onClick={handleClearSession}
+                    disabled={isAnalyzing}
+                    className="w-full sm:w-auto px-6 py-4 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-800 font-bold text-sm rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm"
+                  >
+                    <Trash2 className="h-4 w-4 text-rose-500" />
+                    <span>Clear Resume / Clear Session</span>
+                  </button>
+                )}
               </div>
 
               {/* Value Proposition Highlights */}

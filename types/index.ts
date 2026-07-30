@@ -8,6 +8,7 @@ export interface ParsedResume {
     location?: string;
   };
   summary: string;
+  isSummaryInferred?: boolean;
   skills: {
     technical: string[];
     soft: string[];
@@ -21,6 +22,26 @@ export interface ParsedResume {
     location?: string;
     description: string[];
   }>;
+  isExperienceInferred?: boolean;
+  internships: Array<{
+    company: string;
+    role: string;
+    duration: string;
+    location?: string;
+    description: string[];
+  }>;
+  leadership: Array<{
+    role: string;
+    organization: string;
+    duration?: string;
+    description: string[];
+  }>;
+  extracurricular: Array<{
+    title: string;
+    organization?: string;
+    description: string[];
+  }>;
+  neutralItems: string[];
   education: Array<{
     degree: string;
     institution: string;
@@ -49,33 +70,38 @@ export interface JobDescription {
   experienceLevel?: string;
 }
 
+export interface PillarCheck {
+  name: string;
+  status: 'Passed' | 'Missing' | 'Needs improvement' | 'Low' | 'Medium' | 'High' | 'None detected' | 'Detected';
+  pts: number;
+  maxPts: number;
+  detail?: string;
+}
+
+export interface AtsRecommendation {
+  text: string;
+  priority: 'Critical' | 'Important' | 'Optional';
+  pillar?: string;
+}
+
 export interface AtsScoreResult {
   overallScore: number;
   grade: 'A+' | 'A' | 'B' | 'C' | 'D' | 'F';
+  hasJd: boolean;
   breakdown: {
     sections: {
       score: number;
       maxScore: number;
       itemsPresent: string[];
       itemsMissing: string[];
-    };
-    keywords: {
-      score: number;
-      maxScore: number;
-      density: number;
-      frequencyMap: Record<string, number>;
-    };
-    skills: {
-      score: number;
-      maxScore: number;
-      matchedCount: number;
-      totalRequired: number;
+      checks: PillarCheck[];
     };
     formatting: {
       score: number;
       maxScore: number;
       passCount: number;
       issues: string[];
+      checks: PillarCheck[];
     };
     readability: {
       score: number;
@@ -83,10 +109,36 @@ export interface AtsScoreResult {
       gradeLevel: string;
       avgSentenceLength: number;
       wordCount: number;
+      checks: PillarCheck[];
+    };
+    contact: {
+      score: number;
+      maxScore: number;
+      checks: PillarCheck[];
+    };
+    contentQuality: {
+      score: number;
+      maxScore: number;
+      checks: PillarCheck[];
+    };
+    keywords: {
+      score: number | null;
+      maxScore: number;
+      density: number;
+      frequencyMap: Record<string, number>;
+      checks?: PillarCheck[];
+    };
+    skills: {
+      score: number | null;
+      maxScore: number;
+      matchedCount: number;
+      totalRequired: number;
+      checks?: PillarCheck[];
     };
   };
   strengths: string[];
   weaknesses: string[];
+  recommendations: AtsRecommendation[];
   criticalFixes: string[];
 }
 
@@ -97,8 +149,11 @@ export interface KeywordMatchItem {
 }
 
 export interface JobMatchResult {
-  matchPercentage: number;
+  hasJd: boolean;
+  matchPercentage: number | null;
   similarityScore: number;
+  skillsCoverage: number;
+  keywordCoverage: number;
   matchingSkills: string[];
   missingSkills: string[];
   matchingKeywords: KeywordMatchItem[];
@@ -115,6 +170,7 @@ export interface RecommendedSkill {
 }
 
 export interface SkillsGapResult {
+  hasJd: boolean;
   currentSkills: string[];
   requiredSkills: string[];
   missingSkills: string[];
@@ -162,6 +218,26 @@ export interface GrammarAnalysisResult {
   suggestions: GrammarSuggestion[];
 }
 
+export interface PdfQualityReport {
+  fileType: string;
+  fileSize: string;
+  pageCount: string;
+  textExtractionSuccess: boolean;
+  extractedWordCount: number;
+  hasHyperlinks: string;
+  unusualFormatting: string;
+  tablesOrComplexLayout: string;
+  multiColumnParsingRisk: 'Low' | 'Medium' | 'High' | 'Not evaluated';
+  scannedPdfRisk: 'Low' | 'High' | 'Not evaluated';
+  atsTextExtractionQuality: 'High Quality' | 'Moderate' | 'Poor';
+  overallRisk: 'LOW' | 'MEDIUM' | 'HIGH';
+  detectedIssues: Array<{
+    property: string;
+    status: string;
+    explanation: string;
+  }>;
+}
+
 export interface CompleteAnalysisReport {
   id: string;
   createdAt: string;
@@ -173,4 +249,5 @@ export interface CompleteAnalysisReport {
   skillsGap: SkillsGapResult;
   aiSuggestions: AiSuggestionsResult;
   grammar: GrammarAnalysisResult;
+  pdfQuality?: PdfQualityReport;
 }

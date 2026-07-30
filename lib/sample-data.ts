@@ -199,6 +199,12 @@ export const PARSED_SAMPLE_RESUME: ParsedResume = {
     "Awarded 'Engineering Team MVP' at TechScale Solutions in 2023 for outstanding architectural contribution.",
     "1st Place Winner at Bay Area Hackathon 2021 out of 60 competing teams.",
   ],
+  internships: [],
+  leadership: [],
+  extracurricular: [],
+  neutralItems: [],
+  isSummaryInferred: false,
+  isExperienceInferred: false,
   rawText: SAMPLE_RESUME_TEXT,
   wordCount: 385,
 };

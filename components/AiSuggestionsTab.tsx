@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { AiSuggestionsResult } from "@/types";
-import { Sparkles, ArrowRight, Check, RefreshCw, Cpu, Award } from "lucide-react";
+import { Sparkles, RefreshCw, Cpu, Check, Copy } from "lucide-react";
 
 interface AiSuggestionsTabProps {
   aiSuggestions: AiSuggestionsResult;
@@ -12,12 +12,20 @@ export const AiSuggestionsTab: React.FC<AiSuggestionsTabProps> = ({ aiSuggestion
   const {
     bulletRewrites,
     missingTechToHighlight,
-    wordingEnhancements,
-    achievementIdeas,
     enhancedSummary,
     actionVerbsRecommended,
     source,
   } = aiSuggestions;
+
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopy = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => {
+      setCopiedId(null);
+    }, 2000);
+  };
 
   return (
     <div className="space-y-6">
@@ -30,7 +38,7 @@ export const AiSuggestionsTab: React.FC<AiSuggestionsTabProps> = ({ aiSuggestion
               <h2 className="text-xl font-bold">AI-Powered Bullet & Summary Optimizer</h2>
             </div>
             <p className="text-xs text-slate-300 max-w-xl">
-              Generates quantifiable accomplishments, action verb replacements, and strategic keyword positioning.
+              Generates contextual, evidence-based bullet rewrites and action verb improvements based on your actual resume content.
             </p>
           </div>
 
@@ -43,12 +51,30 @@ export const AiSuggestionsTab: React.FC<AiSuggestionsTabProps> = ({ aiSuggestion
 
       {/* Enhanced Executive Summary Card */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-3">
-        <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-          <Sparkles className="h-5 w-5 text-amber-500" />
-          <span>Recommended AI Professional Summary</span>
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+            <Sparkles className="h-5 w-5 text-amber-500" />
+            <span>Recommended AI Professional Summary</span>
+          </h3>
+          <button
+            onClick={() => handleCopy(enhancedSummary, "summary")}
+            className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all shadow-sm"
+          >
+            {copiedId === "summary" ? (
+              <>
+                <Check className="h-3.5 w-3.5 text-emerald-500" />
+                <span className="text-emerald-600 font-bold">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="h-3.5 w-3.5 text-slate-500" />
+                <span>Copy Summary</span>
+              </>
+            )}
+          </button>
+        </div>
         <p className="text-xs text-slate-500">
-          Copy and paste this tailored summary to immediately catch the recruiter's eye:
+          Tailored professional summary based on your extracted resume skills and experience:
         </p>
         <div className="p-4 bg-brand-50/60 dark:bg-brand-950/40 border border-brand-200 dark:border-brand-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 font-medium leading-relaxed italic">
           "{enhancedSummary}"
@@ -59,7 +85,7 @@ export const AiSuggestionsTab: React.FC<AiSuggestionsTabProps> = ({ aiSuggestion
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
         <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
           <RefreshCw className="h-5 w-5 text-emerald-500" />
-          <span>High-Impact Bullet Point Rewrites</span>
+          <span>High-Impact Contextual Bullet Point Rewrites</span>
         </h3>
 
         <div className="space-y-4">
@@ -70,26 +96,46 @@ export const AiSuggestionsTab: React.FC<AiSuggestionsTabProps> = ({ aiSuggestion
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 {/* Original */}
-                <div className="space-y-1 p-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                <div className="space-y-1 p-3.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
                   <span className="text-[10px] font-bold text-rose-500 uppercase tracking-wider block">
-                    Before (Weak / Generic)
+                    Original Bullet (From Resume)
                   </span>
-                  <p className="text-slate-600 dark:text-slate-400">{rewrite.original}</p>
+                  <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{rewrite.original}</p>
                 </div>
 
                 {/* Improved */}
-                <div className="space-y-1 p-3 bg-emerald-50/60 dark:bg-emerald-950/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                  <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block flex items-center space-x-1">
-                    <span>After (AI Optimized)</span>
-                    {rewrite.metricAdded && <span className="bg-emerald-200 text-emerald-800 px-1 rounded text-[9px]">+ Metric</span>}
-                  </span>
-                  <p className="font-semibold text-slate-900 dark:text-white">{rewrite.improved}</p>
+                <div className="space-y-2 p-3.5 bg-emerald-50/60 dark:bg-emerald-950/30 rounded-xl border border-emerald-200 dark:border-emerald-800 flex flex-col justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+                        Suggested Rewrite
+                      </span>
+                      <button
+                        onClick={() => handleCopy(rewrite.improved, `bullet_${idx}`)}
+                        className="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-[11px] font-semibold flex items-center space-x-1 transition-all shadow-xs"
+                      >
+                        {copiedId === `bullet_${idx}` ? (
+                          <>
+                            <Check className="h-3 w-3 text-emerald-500" />
+                            <span className="text-emerald-600 font-bold">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3 w-3 text-slate-500" />
+                            <span>Copy Suggestion</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <p className="font-semibold text-slate-900 dark:text-white leading-relaxed">{rewrite.improved}</p>
+                  </div>
                 </div>
               </div>
 
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 italic">
-                💡 Rationale: {rewrite.rationale}
-              </p>
+              <div className="p-3 bg-white/60 dark:bg-slate-900/60 rounded-lg border border-slate-200/50 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400 flex items-start space-x-2">
+                <span className="font-bold text-brand-600 shrink-0">Reason:</span>
+                <span>{rewrite.rationale}</span>
+              </div>
             </div>
           ))}
         </div>
