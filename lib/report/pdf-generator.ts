@@ -160,8 +160,12 @@ export function generateReportHtml(report: CompleteAnalysisReport): string {
     ${aiSuggestions.bulletRewrites.slice(0, 3).map(b => `
       <li style="margin-bottom: 12px;">
         <div style="color: #64748b; font-size: 12px;">Original: "${b.original}"</div>
-        <div style="color: #15803d; font-weight: 600; margin-top: 2px;">Improved: "${b.improved}"</div>
-        <div style="color: #475569; font-size: 11px; italic; margin-top: 2px;">Rationale: ${b.rationale}</div>
+        <div style="font-size: 11px; font-weight: 700; color: ${b.assessment === 'strong' ? '#16a34a' : b.assessment === 'needs_improvement' ? '#d97706' : '#dc2626'}; text-transform: uppercase;">
+          Status: ${b.assessment === 'strong' ? '✓ Already Strong' : b.assessment === 'needs_improvement' ? 'Needs Improvement' : 'Weak Structure'}
+        </div>
+        ${b.improved ? `<div style="color: #15803d; font-weight: 600; margin-top: 2px;">${b.assessment === 'strong' ? 'Optional Refinement' : 'Suggested Rewrite'}: "${b.improved}"</div>` : ''}
+        <div style="color: #475569; font-size: 11px; font-style: italic; margin-top: 2px;">Why: ${b.rationale}</div>
+        ${b.metricOpportunity ? `<div style="color: #b45309; font-size: 11px; margin-top: 2px;">💡 Tip: ${b.metricOpportunity}</div>` : ''}
       </li>
     `).join("")}
   </ul>

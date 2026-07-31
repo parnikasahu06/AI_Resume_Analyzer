@@ -179,9 +179,11 @@ export interface SkillsGapResult {
 
 export interface BulletRewrite {
   original: string;
-  improved: string;
+  assessment: 'strong' | 'needs_improvement' | 'weak';
+  improved: string | null;
   rationale: string;
-  metricAdded: boolean;
+  metricAdded?: boolean;
+  metricOpportunity?: string | null;
 }
 
 export interface WordingEnhancement {
