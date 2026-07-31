@@ -91,12 +91,12 @@ export const AtsScoreTab: React.FC<AtsScoreTabProps> = ({ atsScore }) => {
       )}
 
       {/* Top Banner: Circular Score & Grade Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm min-w-0">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
           {/* Circular Progress Gauge */}
-          <div className="flex items-center space-x-6">
-            <div className="relative flex items-center justify-center">
-              <svg className="w-40 h-40 transform -rotate-90">
+          <div className="flex flex-col xs:flex-row items-center space-y-4 xs:space-y-0 xs:space-x-5 sm:space-x-6 text-center xs:text-left min-w-0 w-full md:w-auto">
+            <div className="relative flex items-center justify-center shrink-0">
+              <svg viewBox="0 0 160 160" className="w-28 h-28 sm:w-40 sm:h-40 transform -rotate-90">
                 <circle
                   cx="80"
                   cy="80"
@@ -120,25 +120,25 @@ export const AtsScoreTab: React.FC<AtsScoreTabProps> = ({ atsScore }) => {
                 />
               </svg>
               <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-4xl font-black text-slate-900 dark:text-white">
+                <span className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white">
                   {overallScore}
                 </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Out of 100
                 </span>
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center space-x-3">
-                <span className={`px-3 py-1 text-sm font-extrabold rounded-full ${scoreColors.badgeBg} ${scoreColors.badgeText}`}>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center justify-center xs:justify-start gap-2">
+                <span className={`px-2.5 sm:px-3 py-1 text-xs font-extrabold rounded-full ${scoreColors.badgeBg} ${scoreColors.badgeText}`}>
                   Grade {grade}
                 </span>
                 <span className="text-xs font-semibold text-slate-500">
                   {overallScore >= 80 ? "ATS Optimized" : overallScore >= 60 ? "Moderate ATS Pass" : "Needs Immediate Improvement"}
                 </span>
               </div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white mt-2">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mt-2">
                 ATS Resume Quality Score
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md">
@@ -147,39 +147,39 @@ export const AtsScoreTab: React.FC<AtsScoreTabProps> = ({ atsScore }) => {
             </div>
           </div>
 
-          <div className="w-full md:w-auto p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 text-center md:text-left min-w-[200px]">
+          <div className="w-full md:w-auto p-3.5 sm:p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800 text-center md:text-left min-w-[200px]">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Pillar Overview</span>
             <div className="space-y-1">
-              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">✓ Sections: {breakdown.sections.score}/20 pts</p>
-              <p className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">✓ Formatting: {breakdown.formatting.score}/20 pts</p>
-              <p className="text-sm font-semibold text-purple-600 dark:text-purple-400">✓ Readability: {breakdown.readability.score}/20 pts</p>
+              <p className="text-xs sm:text-sm font-semibold text-emerald-600 dark:text-emerald-400">✓ Sections: {breakdown.sections.score}/20 pts</p>
+              <p className="text-xs sm:text-sm font-semibold text-indigo-600 dark:text-indigo-400">✓ Formatting: {breakdown.formatting.score}/20 pts</p>
+              <p className="text-xs sm:text-sm font-semibold text-purple-600 dark:text-purple-400">✓ Readability: {breakdown.readability.score}/20 pts</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Expandable "How is this calculated?" Methodology Accordion */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden min-w-0">
         <button
           onClick={() => setShowMethodology(!showMethodology)}
-          className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+          className="w-full p-4 sm:p-5 flex items-center justify-between text-left hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
         >
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 min-w-0">
             <HelpCircle className="h-5 w-5 text-brand-600 dark:text-brand-400 shrink-0" />
-            <div>
-              <h3 className="font-bold text-sm text-slate-900 dark:text-white">How is this calculated?</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Learn about our deterministic 100-point ATS scoring methodology.</p>
+            <div className="min-w-0">
+              <h3 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">How is this calculated?</h3>
+              <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">Learn about our deterministic 100-point ATS scoring methodology.</p>
             </div>
           </div>
           {showMethodology ? (
-            <ChevronUp className="h-5 w-5 text-slate-400 shrink-0" />
+            <ChevronUp className="h-5 w-5 text-slate-400 shrink-0 ml-2" />
           ) : (
-            <ChevronDown className="h-5 w-5 text-slate-400 shrink-0" />
+            <ChevronDown className="h-5 w-5 text-slate-400 shrink-0 ml-2" />
           )}
         </button>
 
         {showMethodology && (
-          <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 text-xs text-slate-600 dark:text-slate-300 space-y-3 leading-relaxed">
+          <div className="p-4 sm:p-5 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 text-xs text-slate-600 dark:text-slate-300 space-y-3 leading-relaxed">
             <p>
               The <strong>ATS Resume Quality Score</strong> is derived deterministically from 5 pure resume quality pillars (20 points max each, summing to 100 points total). No random numbers, hardcoded scores, or unverified defaults are used.
             </p>
@@ -215,17 +215,17 @@ export const AtsScoreTab: React.FC<AtsScoreTabProps> = ({ atsScore }) => {
       </div>
 
       {/* Explainable 5-Pillar Score Breakdown */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
-        <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-          <ShieldCheck className="h-5 w-5 text-brand-600" />
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5 sm:space-y-6 min-w-0">
+        <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center space-x-2">
+          <ShieldCheck className="h-5 w-5 text-brand-600 shrink-0" />
           <span>Explainable ATS Pillar Breakdown & Check Details</span>
         </h3>
 
-        <div className="space-y-6">
+        <div className="space-y-5 sm:space-y-6">
           {pillars.map((p, idx) => {
             const pct = Math.round((p.score / p.max) * 100);
             return (
-              <div key={idx} className="p-5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 rounded-2xl space-y-4">
+              <div key={idx} className="p-4 sm:p-5 bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 rounded-2xl space-y-4 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/60 dark:border-slate-800 pb-3">
                   <div>
                     <div className="flex items-center space-x-3">
@@ -248,16 +248,16 @@ export const AtsScoreTab: React.FC<AtsScoreTabProps> = ({ atsScore }) => {
                 </div>
 
                 {/* Individual Checks List */}
-                <div className="space-y-2">
+                <div className="space-y-2 min-w-0">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block mb-1">Contributing Checks</span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 min-w-0">
                     {p.checks.map((chk, cIdx) => (
-                      <div key={cIdx} className="p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/50 dark:border-slate-800 flex items-start justify-between gap-3 text-xs">
-                        <div className="space-y-0.5">
-                          <span className="font-medium text-slate-800 dark:text-slate-200">{chk.name}</span>
-                          {chk.detail && <p className="text-[11px] text-slate-500 leading-tight">{chk.detail}</p>}
+                      <div key={cIdx} className="p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200/50 dark:border-slate-800 flex flex-col xs:flex-row xs:items-center justify-between gap-2 text-xs min-w-0">
+                        <div className="space-y-0.5 min-w-0">
+                          <span className="font-medium text-slate-800 dark:text-slate-200 block truncate">{chk.name}</span>
+                          {chk.detail && <p className="text-[11px] text-slate-500 leading-tight break-words">{chk.detail}</p>}
                         </div>
-                        <div className="flex items-center space-x-2 shrink-0">
+                        <div className="flex items-center space-x-2 shrink-0 self-start xs:self-auto">
                           <span className={`px-2 py-0.5 text-[10px] font-extrabold rounded-full border ${getStatusBadgeClass(chk.status)}`}>
                             {chk.status}
                           </span>

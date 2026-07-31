@@ -216,12 +216,28 @@ export async function POST(req: NextRequest) {
 }
 
 function extractKeywordsFromJdText(jdText: string): string[] {
-  const common = [
+  const multiDomainKeywords = [
+    // Tech & Data
     "TypeScript", "React", "Next.js", "Node.js", "Python", "Java", "SQL", "PostgreSQL",
-    "MongoDB", "AWS", "Docker", "Kubernetes", "GraphQL", "REST APIs", "CI/CD", "Jest",
-    "Redux", "Zustand", "Redis", "Security", "Microservices"
+    "MongoDB", "AWS", "Azure", "GCP", "Docker", "Kubernetes", "GraphQL", "REST APIs", "CI/CD", "Jest",
+    "Redux", "Zustand", "Redis", "Security", "Microservices", "Power BI", "Tableau", "Pandas",
+    "NumPy", "Machine Learning", "Scikit-Learn", "PyTorch", "TensorFlow", "Snowflake", "BigQuery",
+    // Security & DevOps
+    "DevOps", "Terraform", "Linux", "Cybersecurity", "SIEM", "Splunk", "Incident Response", "Vulnerability Assessment",
+    // Product & Ops
+    "Product Management", "Product Roadmap", "Agile", "Scrum", "Jira", "Confluence", "Project Management",
+    "Operations Management", "Process Optimization", "Logistics",
+    // Marketing & Creative
+    "Digital Marketing", "Google Ads", "Meta Ads", "Google Analytics", "SEO", "SEMrush", "Ahrefs",
+    "Content Strategy", "Copywriting", "Graphic Design", "Photoshop", "Illustrator", "Figma", "UI/UX Design",
+    // Finance & Accounting
+    "Financial Analysis", "Financial Modeling", "Budgeting", "Forecasting", "Valuation", "Accounting",
+    "General Ledger", "Accounts Payable", "Accounts Receivable", "P&L Analysis",
+    // HR & Sales
+    "HR Operations", "Employee Onboarding", "HRIS", "Recruitment", "LinkedIn Recruiter", "Talent Acquisition",
+    "Sales", "Lead Generation", "Pipeline Management", "Salesforce", "HubSpot", "Customer Success", "Zendesk"
   ];
-  return common.filter(kw => new RegExp(`\\b${kw}\\b`, "i").test(jdText));
+  return multiDomainKeywords.filter(kw => new RegExp(`\\b${kw.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, "i").test(jdText));
 }
 
 function extractSkillsFromJdText(jdText: string): string[] {

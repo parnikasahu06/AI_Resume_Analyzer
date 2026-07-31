@@ -28,29 +28,29 @@ interface SidebarProps {
   hasAnalysis: boolean;
 }
 
+export const NAV_ITEMS = [
+  { id: "home", label: "Home / Upload", icon: Home, reqAnalysis: false },
+  { id: "summary", label: "Resume Summary", icon: FileText, reqAnalysis: true },
+  { id: "ats", label: "ATS Score", icon: Target, reqAnalysis: true },
+  { id: "match", label: "Job Match", icon: Search, reqAnalysis: true },
+  { id: "skills", label: "Skills Gap", icon: Award, reqAnalysis: true },
+  { id: "ai", label: "AI Suggestions", icon: Sparkles, reqAnalysis: true },
+  { id: "grammar", label: "Grammar Check", icon: CheckSquare, reqAnalysis: true },
+  { id: "report", label: "PDF Quality Report", icon: Printer, reqAnalysis: true },
+] as const;
+
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
   hasAnalysis,
 }) => {
-  const tabs = [
-    { id: "home", label: "Home / Upload", icon: Home, reqAnalysis: false },
-    { id: "summary", label: "Resume Summary", icon: FileText, reqAnalysis: true },
-    { id: "ats", label: "ATS Score", icon: Target, reqAnalysis: true },
-    { id: "match", label: "Job Match", icon: Search, reqAnalysis: true },
-    { id: "skills", label: "Skills Gap", icon: Award, reqAnalysis: true },
-    { id: "ai", label: "AI Suggestions", icon: Sparkles, reqAnalysis: true },
-    { id: "grammar", label: "Grammar Check", icon: CheckSquare, reqAnalysis: true },
-    { id: "report", label: "PDF Quality Report", icon: Printer, reqAnalysis: true },
-  ];
-
   return (
-    <aside className="w-full md:w-64 bg-slate-50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 p-4 space-y-1">
+    <aside className="hidden md:block w-64 shrink-0 bg-slate-50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 p-4 space-y-1">
       <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
         Navigation
       </div>
       <nav className="space-y-1">
-        {tabs.map((tab) => {
+        {NAV_ITEMS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           const isDisabled = tab.reqAnalysis && !hasAnalysis;
@@ -71,7 +71,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-slate-500 dark:text-slate-400"}`} />
               <span>{tab.label}</span>
               {tab.reqAnalysis && !hasAnalysis && (
-                <span className="ml-auto text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded">
+                <span className="ml-auto text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded font-mono">
                   Lock
                 </span>
               )}

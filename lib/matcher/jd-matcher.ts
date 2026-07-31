@@ -2,12 +2,43 @@ import { ParsedResume, JobDescription, JobMatchResult, KeywordMatchItem } from "
 import { computeTfIdfVectors } from "./tf-idf";
 import { calculateCosineSimilarity } from "./cosine";
 
-const TECH_KEYWORDS_LIST = [
+const DOMAIN_KEYWORDS_LIST = [
+  // Software & Web Dev
   "React", "Next.js", "Vue.js", "Angular", "TypeScript", "JavaScript", "Node.js", "Express",
   "Python", "Java", "C++", "C#", "Go", "GraphQL", "REST APIs", "PostgreSQL", "MongoDB", "Redis",
-  "AWS", "Docker", "Kubernetes", "CI/CD", "Git", "Jest", "Cypress", "Tailwind CSS", "Prisma",
-  "Redux", "Zustand", "Webpack", "Vite", "SEO", "Microservices", "Security", "Agile", "Scrum",
-  "Machine Learning", "OpenAI", "LangChain", "Vector Databases", "Pandas", "NumPy"
+  "AWS", "Azure", "GCP", "Docker", "Kubernetes", "CI/CD", "Git", "Jest", "Cypress", "Tailwind CSS", "Prisma",
+  "Redux", "Zustand", "Webpack", "Vite", "Microservices", "Agile", "Scrum", "Data Structures", "Algorithms",
+  "React Native", "Flutter", "Swift", "Kotlin", "Spring Boot", "Django", "FastAPI", "Flask",
+  // Data & AI
+  "SQL", "Pandas", "NumPy", "Power BI", "Tableau", "Data Visualization", "Statistics", "Machine Learning",
+  "Scikit-Learn", "TensorFlow", "PyTorch", "MLOps", "Vector Databases", "OpenAI", "LangChain", "LlamaIndex",
+  "Prompt Engineering", "RAG", "Snowflake", "BigQuery", "ETL", "Data Cleaning",
+  // Cloud & Cybersecurity
+  "DevOps", "Linux", "Terraform", "GitHub Actions", "Bash", "Cybersecurity", "SIEM", "Splunk",
+  "Incident Response", "Vulnerability Assessment", "Wireshark", "Network Security", "Penetration Testing",
+  "DevSecOps", "OWASP", "SOC Operations", "EDR", "Security+", "IAM", "Firewalls",
+  // Product & Management
+  "Product Management", "Product Roadmap", "PRD Writing", "User Research", "Jira", "Confluence",
+  "Project Management", "Risk Management", "Operations Management", "Process Optimization", "SOP Development",
+  "Logistics", "Supply Chain", "Requirement Gathering", "User Stories", "UAT",
+  // Marketing & Creative
+  "Digital Marketing", "Google Ads", "Meta Ads", "Google Analytics", "SEO", "Social Media Marketing",
+  "Email Marketing", "Copywriting", "Content Strategy", "Proofreading", "Technical SEO", "SEMrush", "Ahrefs",
+  "Google Search Console", "WordPress", "Graphic Design", "Photoshop", "Illustrator", "InDesign", "Figma",
+  "Typography", "Branding", "Visual Design", "UI/UX Design", "Wireframing", "Prototyping", "Design Systems",
+  "Usability Testing", "Information Architecture",
+  // Finance & Accounting
+  "Financial Analysis", "Financial Modeling", "Budgeting", "Forecasting", "P&L Analysis", "Valuation",
+  "Accounting", "General Ledger", "Reconciliations", "Accounts Payable", "Accounts Receivable",
+  "Journal Entries", "Tax Compliance", "Equity Research", "Due Diligence", "Investment Analysis",
+  // HR & Recruitment
+  "HR Operations", "Employee Onboarding", "HRIS", "Employee Relations", "Payroll Coordination",
+  "Performance Management", "Recruitment", "Candidate Sourcing", "LinkedIn Recruiter", "Interviewing",
+  "ATS Management", "Resume Screening", "Offer Negotiation", "Talent Acquisition", "Headhunting",
+  // Sales & Customer Success
+  "Sales", "Lead Generation", "Pipeline Management", "Salesforce", "HubSpot", "Deal Closing",
+  "Negotiation", "Prospecting", "Business Development", "Lead Qualification", "Pitching",
+  "Customer Success", "Client Onboarding", "Account Management", "Customer Retention", "Zendesk"
 ];
 
 const SKILL_ALIASES: Record<string, string> = {
@@ -64,6 +95,22 @@ const SKILL_ALIASES: Record<string, string> = {
   "numpy": "NumPy",
   "express": "Express.js",
   "express.js": "Express.js",
+  "power bi": "Power BI",
+  "tableau": "Tableau",
+  "seo": "SEO",
+  "semrush": "SEMrush",
+  "photoshop": "Photoshop",
+  "illustrator": "Illustrator",
+  "figma": "Figma",
+  "ui/ux": "UI/UX Design",
+  "ui ux": "UI/UX Design",
+  "salesforce": "Salesforce",
+  "hubspot": "HubSpot",
+  "crm": "Salesforce",
+  "workday": "Workday",
+  "hris": "HRIS",
+  "ga4": "Google Analytics",
+  "google analytics": "Google Analytics",
 };
 
 export function normalizeSkillName(skill: string): string {
@@ -101,7 +148,7 @@ export function matchResumeToJd(
   const similarityScore = Number(Math.max(0.1, Math.min(0.98, rawSimilarity * 2.2)).toFixed(2));
 
   // 2. Keyword Match & Extraction from JD
-  const extractedJdKeywords = extractJdKeywords(jd.rawText);
+  const extractedJdKeywords = extractJdKeywords(jd.rawText, jd.requiredSkills);
   const matchingKeywords: KeywordMatchItem[] = [];
   const missingKeywords: KeywordMatchItem[] = [];
 
@@ -125,7 +172,7 @@ export function matchResumeToJd(
   const normalizedResumeSkillSet = new Set<string>();
   resume.skills.all.forEach(s => normalizedResumeSkillSet.add(normalizeSkillName(s).toLowerCase()));
 
-  TECH_KEYWORDS_LIST.forEach(kw => {
+  DOMAIN_KEYWORDS_LIST.forEach(kw => {
     const reg = new RegExp(`\\b${kw.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, "i");
     if (reg.test(resume.rawText)) {
       normalizedResumeSkillSet.add(normalizeSkillName(kw).toLowerCase());
@@ -179,13 +226,19 @@ export function matchResumeToJd(
   };
 }
 
-function extractJdKeywords(jdText: string): string[] {
+function extractJdKeywords(jdText: string, explicitSkills?: string[]): string[] {
   const found: string[] = [];
-  TECH_KEYWORDS_LIST.forEach(kw => {
+
+  if (explicitSkills && explicitSkills.length > 0) {
+    explicitSkills.forEach(s => found.push(normalizeSkillName(s)));
+  }
+
+  DOMAIN_KEYWORDS_LIST.forEach(kw => {
     const reg = new RegExp(`\\b${kw.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, "i");
     if (reg.test(jdText)) {
       found.push(normalizeSkillName(kw));
     }
   });
+
   return Array.from(new Set(found));
 }

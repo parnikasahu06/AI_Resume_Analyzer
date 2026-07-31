@@ -27,58 +27,58 @@ export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
   } = resume;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6 min-w-0">
       {/* Header Info Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm min-w-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <div className="h-16 w-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-brand-500/20">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+            <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-indigo-600 flex items-center justify-center text-white font-bold text-xl sm:text-2xl shadow-lg shadow-brand-500/20 shrink-0">
               {contact.name.slice(0, 2).toUpperCase() || "CN"}
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2">
-                <span>{contact.name}</span>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white flex items-center space-x-2 truncate">
+                <span className="truncate">{contact.name}</span>
               </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-3">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex flex-wrap gap-2 sm:gap-3 break-all">
                 {contact.email && (
-                  <span className="inline-flex items-center space-x-1">
-                    <Mail className="h-3.5 w-3.5 text-brand-500" />
-                    <span>{contact.email}</span>
+                  <span className="inline-flex items-center space-x-1 max-w-full">
+                    <Mail className="h-3.5 w-3.5 text-brand-500 shrink-0" />
+                    <span className="break-all">{contact.email}</span>
                   </span>
                 )}
                 {contact.phone && (
-                  <span className="inline-flex items-center space-x-1">
-                    <Phone className="h-3.5 w-3.5 text-emerald-500" />
+                  <span className="inline-flex items-center space-x-1 shrink-0">
+                    <Phone className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
                     <span>{contact.phone}</span>
                   </span>
                 )}
                 {contact.linkedin && (
-                  <span className="inline-flex items-center space-x-1">
-                    <Linkedin className="h-3.5 w-3.5 text-blue-500" />
-                    <span>{contact.linkedin}</span>
+                  <span className="inline-flex items-center space-x-1 max-w-full">
+                    <Linkedin className="h-3.5 w-3.5 text-blue-500 shrink-0" />
+                    <span className="truncate">{contact.linkedin}</span>
                   </span>
                 )}
                 {contact.github && (
-                  <span className="inline-flex items-center space-x-1">
-                    <Github className="h-3.5 w-3.5 text-purple-500" />
-                    <span>{contact.github}</span>
+                  <span className="inline-flex items-center space-x-1 max-w-full">
+                    <Github className="h-3.5 w-3.5 text-purple-500 shrink-0" />
+                    <span className="truncate">{contact.github}</span>
                   </span>
                 )}
               </p>
             </div>
           </div>
-          <div className="text-right border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 dark:border-slate-800">
+          <div className="text-left md:text-right border-t md:border-t-0 pt-3 md:pt-0 border-slate-100 dark:border-slate-800 shrink-0">
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Word Count</span>
-            <p className="text-2xl font-black text-brand-600 dark:text-brand-400">{resume.wordCount} words</p>
+            <p className="text-xl sm:text-2xl font-black text-brand-600 dark:text-brand-400">{resume.wordCount} words</p>
           </div>
         </div>
 
         {/* Executive Summary with Provenance Badge */}
         {summary && (
-          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
-            <div className="flex items-center justify-between">
+          <div className="mt-5 sm:mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Parsed Professional Summary</h3>
-              <span className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${
+              <span className={`self-start sm:self-auto px-2.5 py-0.5 text-[10px] font-extrabold rounded-full ${
                 isSummaryInferred
                   ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 border border-amber-300"
                   : "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300"
@@ -86,7 +86,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
                 {isSummaryInferred ? "AI Inferred Summary" : "Extracted from Resume"}
               </span>
             </div>
-            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800">
+            <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed italic bg-slate-50 dark:bg-slate-800/40 p-3.5 sm:p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 break-words">
               "{summary}"
             </p>
           </div>

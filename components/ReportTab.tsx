@@ -15,13 +15,13 @@ export const ReportTab: React.FC<ReportTabProps> = ({ report }) => {
   const risk = pdfQuality?.overallRisk || "LOW";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6 min-w-0">
       {/* Download Action Card */}
-      <div className="bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 rounded-2xl p-6 shadow-xl text-white">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <h2 className="text-2xl font-bold flex items-center justify-center md:justify-start space-x-2">
-              <FileCheck className="h-7 w-7" />
+      <div className="bg-gradient-to-tr from-brand-600 via-indigo-600 to-purple-600 rounded-2xl p-4 sm:p-6 shadow-xl text-white min-w-0">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
+          <div className="space-y-2 text-center md:text-left min-w-0">
+            <h2 className="text-xl sm:text-2xl font-bold flex items-center justify-center md:justify-start space-x-2">
+              <FileCheck className="h-6 w-6 sm:h-7 sm:w-7 shrink-0" />
               <span>Full ATS Quality Audit Report</span>
             </h2>
             <p className="text-xs text-indigo-100 max-w-xl">
@@ -31,9 +31,9 @@ export const ReportTab: React.FC<ReportTabProps> = ({ report }) => {
 
           <button
             onClick={() => downloadReportAsPdf(report)}
-            className="px-6 py-3 bg-white text-brand-700 hover:bg-slate-100 transition-all font-bold text-sm rounded-xl shadow-lg flex items-center space-x-2 shrink-0 transform hover:scale-105 active:scale-95"
+            className="w-full md:w-auto px-6 py-3 bg-white text-brand-700 hover:bg-slate-100 transition-all font-bold text-sm rounded-xl shadow-lg flex items-center justify-center space-x-2 shrink-0 transform hover:scale-105 active:scale-95 min-h-[44px]"
           >
-            <Printer className="h-4 w-4" />
+            <Printer className="h-4 w-4 shrink-0" />
             <span>Download PDF Report</span>
           </button>
         </div>
@@ -41,19 +41,19 @@ export const ReportTab: React.FC<ReportTabProps> = ({ report }) => {
 
       {/* Document Parsing Quality Analysis Card */}
       {pdfQuality && (
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-4">
-            <div>
-              <div className="flex items-center space-x-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5 sm:space-y-6 min-w-0">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 min-w-0">
+            <div className="min-w-0">
+              <div className="flex items-center space-x-2.5">
                 <FileText className="h-5 w-5 text-indigo-500 shrink-0" />
-                <h3 className="font-bold text-base text-slate-900 dark:text-white">PDF & Document Parsing Quality Report</h3>
+                <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white truncate">PDF & Document Parsing Quality Report</h3>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Technical evaluation of document properties that realistically affect automated ATS text parsing.
               </p>
             </div>
 
-            <div className="flex items-center space-x-2 shrink-0">
+            <div className="flex items-center space-x-2 shrink-0 self-start md:self-auto">
               <span className="text-xs font-semibold text-slate-500">Overall Parsing Risk:</span>
               <span className={`px-3 py-1 text-xs font-black rounded-full border ${
                 risk === "HIGH"
@@ -68,84 +68,84 @@ export const ReportTab: React.FC<ReportTabProps> = ({ report }) => {
           </div>
 
           {/* 11 Technical Properties Checklist Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs">
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-xs min-w-0">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">File Type</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{pdfQuality.fileType}</span>
+              <span className="font-semibold text-slate-900 dark:text-white truncate block">{pdfQuality.fileType}</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">File Size</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{pdfQuality.fileSize}</span>
+              <span className="font-semibold text-slate-900 dark:text-white truncate block">{pdfQuality.fileSize}</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Page Count</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{pdfQuality.pageCount}</span>
+              <span className="font-semibold text-slate-900 dark:text-white truncate block">{pdfQuality.pageCount}</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Text Extraction Stream</span>
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400">✓ Successful</span>
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400 truncate block">✓ Successful</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Extracted Word Count</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{pdfQuality.extractedWordCount} words</span>
+              <span className="font-semibold text-slate-900 dark:text-white truncate block">{pdfQuality.extractedWordCount} words</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Presence of Hyperlinks</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{pdfQuality.hasHyperlinks}</span>
+              <span className="font-semibold text-slate-900 dark:text-white truncate block">{pdfQuality.hasHyperlinks}</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Unusual Formatting</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{pdfQuality.unusualFormatting}</span>
+              <span className="font-semibold text-slate-900 dark:text-white truncate block">{pdfQuality.unusualFormatting}</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Tables & Complex Layout</span>
-              <span className={`font-semibold ${pdfQuality.tablesOrComplexLayout === "Detected" ? "text-amber-600" : "text-slate-900 dark:text-white"}`}>
+              <span className={`font-semibold truncate block ${pdfQuality.tablesOrComplexLayout === "Detected" ? "text-amber-600" : "text-slate-900 dark:text-white"}`}>
                 {pdfQuality.tablesOrComplexLayout}
               </span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Multi-Column Parsing Risk</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{pdfQuality.multiColumnParsingRisk}</span>
+              <span className="font-semibold text-slate-900 dark:text-white truncate block">{pdfQuality.multiColumnParsingRisk}</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Empty / Scanned PDF Risk</span>
-              <span className="font-semibold text-slate-900 dark:text-white">{pdfQuality.scannedPdfRisk}</span>
+              <span className="font-semibold text-slate-900 dark:text-white truncate block">{pdfQuality.scannedPdfRisk}</span>
             </div>
 
-            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 col-span-1 sm:col-span-2">
+            <div className="p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/50 dark:border-slate-800 space-y-1 col-span-1 sm:col-span-2 min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">ATS Text Extraction Quality</span>
-              <span className="font-extrabold text-indigo-600 dark:text-indigo-400">{pdfQuality.atsTextExtractionQuality}</span>
+              <span className="font-extrabold text-indigo-600 dark:text-indigo-400 truncate block">{pdfQuality.atsTextExtractionQuality}</span>
             </div>
           </div>
 
           {/* Issue Explanations Card */}
-          <div className="space-y-3 pt-2">
+          <div className="space-y-3 pt-2 min-w-0">
             <h4 className="font-bold text-xs uppercase tracking-wider text-slate-400">Detected Issue Explanations</h4>
             {pdfQuality.detectedIssues.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-2 min-w-0">
                 {pdfQuality.detectedIssues.map((issue, idx) => (
-                  <div key={idx} className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl text-xs space-y-1">
-                    <div className="flex items-center justify-between">
+                  <div key={idx} className="p-3 bg-rose-50/60 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 rounded-xl text-xs space-y-1 min-w-0">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="font-bold text-rose-800 dark:text-rose-300">{issue.property}</span>
                       <span className="px-2 py-0.5 text-[10px] font-bold bg-rose-200 text-rose-900 rounded">{issue.status}</span>
                     </div>
-                    <p className="text-rose-700 dark:text-rose-300 leading-relaxed">{issue.explanation}</p>
+                    <p className="text-rose-700 dark:text-rose-300 leading-relaxed break-words">{issue.explanation}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 font-semibold flex items-center space-x-2">
+              <div className="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 font-semibold flex items-center space-x-2 min-w-0">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>No technical document parsing issues detected! Text vectors stream cleanly for ATS indexing.</span>
+                <span className="break-words">No technical document parsing issues detected! Text vectors stream cleanly for ATS indexing.</span>
               </div>
             )}
           </div>
@@ -153,62 +153,62 @@ export const ReportTab: React.FC<ReportTabProps> = ({ report }) => {
       )}
 
       {/* Audit Preview Sheet */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6">
-        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
-          <div>
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white">Audit Executive Summary</h3>
-            <p className="text-xs text-slate-500">Candidate: {parsedResume.contact.name} ({parsedResume.contact.email})</p>
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5 sm:space-y-6 min-w-0">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 gap-2 min-w-0">
+          <div className="min-w-0">
+            <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white truncate">Audit Executive Summary</h3>
+            <p className="text-xs text-slate-500 truncate">Candidate: {parsedResume.contact.name} ({parsedResume.contact.email})</p>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right shrink-0">
             <span className="text-xs font-semibold text-slate-400">Report ID</span>
             <p className="font-mono text-xs text-slate-600 dark:text-slate-400">{report.id}</p>
           </div>
         </div>
 
         {/* 3 Metric Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/60 dark:border-slate-800">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 min-w-0">
+          <div className="p-3.5 sm:p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/60 dark:border-slate-800 min-w-0">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">ATS Score</span>
-            <span className="text-2xl font-black text-emerald-600">{atsScore.overallScore} / 100</span>
+            <span className="text-xl sm:text-2xl font-black text-emerald-600">{atsScore.overallScore} / 100</span>
             <span className="text-xs font-semibold text-slate-500 block">Grade {atsScore.grade}</span>
           </div>
 
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/60 dark:border-slate-800">
+          <div className="p-3.5 sm:p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/60 dark:border-slate-800 min-w-0">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Job Similarity</span>
-            <span className="text-2xl font-black text-indigo-600">{jobMatch.hasJd && jobMatch.matchPercentage !== null ? `${jobMatch.matchPercentage}%` : 'Not Calculated'}</span>
+            <span className="text-xl sm:text-2xl font-black text-indigo-600">{jobMatch.hasJd && jobMatch.matchPercentage !== null ? `${jobMatch.matchPercentage}%` : 'Not Calculated'}</span>
             <span className="text-xs font-semibold text-slate-500 block">{jobMatch.hasJd ? 'TF-IDF Vectorized' : 'Requires JD'}</span>
           </div>
 
-          <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/60 dark:border-slate-800">
+          <div className="p-3.5 sm:p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-slate-200/60 dark:border-slate-800 min-w-0">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Readability Index</span>
-            <span className="text-2xl font-black text-purple-600">{grammar.readabilityScore} / 100</span>
+            <span className="text-xl sm:text-2xl font-black text-purple-600">{grammar.readabilityScore} / 100</span>
             <span className="text-xs font-semibold text-slate-500 block">{grammar.readabilityGrade}</span>
           </div>
         </div>
 
         {/* Key Action Items */}
-        <div className="space-y-3">
+        <div className="space-y-3 min-w-0">
           <h4 className="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
-            <ShieldCheck className="h-4 w-4 text-rose-500" />
+            <ShieldCheck className="h-4 w-4 text-rose-500 shrink-0" />
             <span>High Priority Action Items</span>
           </h4>
-          <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300">
+          <ul className="space-y-2 text-xs text-slate-700 dark:text-slate-300 min-w-0">
             {atsScore.criticalFixes.map((fix, idx) => (
-              <li key={idx} className="flex items-start space-x-2">
-                <span className="text-rose-500 font-bold">▶</span>
-                <span>{fix}</span>
+              <li key={idx} className="flex items-start space-x-2 min-w-0">
+                <span className="text-rose-500 font-bold shrink-0">▶</span>
+                <span className="break-words">{fix}</span>
               </li>
             ))}
           </ul>
         </div>
 
         {/* Executive Summary */}
-        <div className="space-y-2">
+        <div className="space-y-2 min-w-0">
           <h4 className="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2">
-            <Sparkles className="h-4 w-4 text-amber-500" />
+            <Sparkles className="h-4 w-4 text-amber-500 shrink-0" />
             <span>Optimized Professional Summary</span>
           </h4>
-          <p className="text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 italic">
+          <p className="text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/40 p-3.5 sm:p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 italic break-words">
             "{aiSuggestions.enhancedSummary}"
           </p>
         </div>

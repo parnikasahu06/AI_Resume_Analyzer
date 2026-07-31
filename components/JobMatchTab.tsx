@@ -60,12 +60,12 @@ export const JobMatchTab: React.FC<JobMatchTabProps> = ({ jobMatch }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6 min-w-0">
       {/* Header Match Percentage Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-3 text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start space-x-3">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm min-w-0">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-5 sm:gap-6">
+          <div className="space-y-3 text-center md:text-left min-w-0 w-full md:w-auto">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3">
               <span className={`px-3.5 py-1 text-xs font-extrabold rounded-full ${matchColors.badgeBg} ${matchColors.badgeText}`}>
                 Job Match Score: {matchPercentage}%
               </span>
@@ -73,7 +73,7 @@ export const JobMatchTab: React.FC<JobMatchTabProps> = ({ jobMatch }) => {
                 Explainable Multi-Signal Match
               </span>
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
               Resume vs Job Description Match Analysis
             </h2>
             <p className="text-xs text-slate-600 dark:text-slate-400 max-w-xl">
@@ -81,23 +81,23 @@ export const JobMatchTab: React.FC<JobMatchTabProps> = ({ jobMatch }) => {
             </p>
 
             {/* Sub-metrics Signal Coverage Grid */}
-            <div className="grid grid-cols-3 gap-3 pt-2 max-w-lg">
-              <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Skills Coverage</span>
-                <span className="text-base font-extrabold text-brand-600 dark:text-brand-400">{skillsCoverage}%</span>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-2 max-w-lg">
+              <div className="p-2 sm:p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-800">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Skills Coverage</span>
+                <span className="text-sm sm:text-base font-extrabold text-brand-600 dark:text-brand-400">{skillsCoverage}%</span>
               </div>
-              <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Keyword Coverage</span>
-                <span className="text-base font-extrabold text-indigo-600 dark:text-indigo-400">{keywordCoverage}%</span>
+              <div className="p-2 sm:p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-800">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Keyword Coverage</span>
+                <span className="text-sm sm:text-base font-extrabold text-indigo-600 dark:text-indigo-400">{keywordCoverage}%</span>
               </div>
-              <div className="p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-800">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Text Similarity</span>
-                <span className="text-base font-extrabold text-purple-600 dark:text-purple-400">{(similarityScore * 100).toFixed(0)}%</span>
+              <div className="p-2 sm:p-2.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-800">
+                <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400 block truncate">Text Similarity</span>
+                <span className="text-sm sm:text-base font-extrabold text-purple-600 dark:text-purple-400">{(similarityScore * 100).toFixed(0)}%</span>
               </div>
             </div>
           </div>
 
-          <div className="w-full md:w-64 space-y-3">
+          <div className="w-full md:w-64 space-y-3 shrink-0">
             <div className="space-y-1">
               <div className="flex justify-between text-xs font-bold">
                 <span className="text-slate-500">Skills Coverage</span>
@@ -132,9 +132,9 @@ export const JobMatchTab: React.FC<JobMatchTabProps> = ({ jobMatch }) => {
       </div>
 
       {/* Ethical Skill Addition Warning Note */}
-      <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-center space-x-3 text-amber-800 dark:text-amber-300 text-xs sm:text-sm font-medium shadow-sm">
+      <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-center space-x-3 text-amber-800 dark:text-amber-300 text-xs sm:text-sm font-medium shadow-sm min-w-0">
         <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
-        <div>
+        <div className="min-w-0">
           <p className="font-bold">Ethical Guidance Note:</p>
           <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
             Only add missing skills to your resume if you genuinely possess them.
@@ -143,19 +143,19 @@ export const JobMatchTab: React.FC<JobMatchTabProps> = ({ jobMatch }) => {
       </div>
 
       {/* Skills Overlap Badges */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 min-w-0">
         {/* Matching Skills */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-3 min-w-0">
           <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2 text-emerald-600">
-            <CheckCircle2 className="h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4 shrink-0" />
             <span>Matched Skills ({matchingSkills.length})</span>
           </h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {matchingSkills.length > 0 ? (
               matchingSkills.map((skill, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs font-semibold"
+                  className="px-2.5 sm:px-3 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs font-semibold break-words max-w-full"
                 >
                   ✓ {skill}
                 </span>
@@ -167,17 +167,17 @@ export const JobMatchTab: React.FC<JobMatchTabProps> = ({ jobMatch }) => {
         </div>
 
         {/* Missing Skills */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-3 min-w-0">
           <h3 className="font-bold text-sm text-slate-900 dark:text-white flex items-center space-x-2 text-rose-600">
-            <XCircle className="h-4 w-4" />
+            <XCircle className="h-4 w-4 shrink-0" />
             <span>Missing Skills ({missingSkills.length})</span>
           </h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {missingSkills.length > 0 ? (
               missingSkills.map((skill, idx) => (
                 <span
                   key={idx}
-                  className="px-3 py-1 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-lg text-xs font-semibold"
+                  className="px-2.5 sm:px-3 py-1 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-lg text-xs font-semibold break-words max-w-full"
                 >
                   ✗ {skill}
                 </span>
@@ -190,14 +190,14 @@ export const JobMatchTab: React.FC<JobMatchTabProps> = ({ jobMatch }) => {
       </div>
 
       {/* Keyword Frequency Analysis Table */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
-        <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
-          <FileSpreadsheet className="h-5 w-5 text-indigo-500" />
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4 min-w-0">
+        <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center space-x-2">
+          <FileSpreadsheet className="h-5 w-5 text-indigo-500 shrink-0" />
           <span>Keyword Frequency Analysis</span>
         </h3>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+        <div className="overflow-x-auto min-w-0 max-w-full -mx-4 sm:mx-0 px-4 sm:px-0">
+          <table className="w-full text-left text-xs min-w-[340px]">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-400 font-bold uppercase tracking-wider">
                 <th className="pb-3">Keyword / Technology</th>
