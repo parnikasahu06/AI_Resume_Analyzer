@@ -8,7 +8,7 @@ import { analyzeSkillsGap } from "@/lib/skills/skills-analyzer";
 import { generateAiSuggestions } from "@/lib/ai/ai-engine";
 import { analyzeGrammarAndReadability } from "@/lib/grammar/grammar-analyzer";
 import { SAMPLE_RESUME_TEXT, SAMPLE_JOB_DESCRIPTION_TEXT } from "@/lib/sample-data";
-import { CompleteAnalysisReport, JobDescription, PdfQualityReport } from "@/types";
+import { CompleteAnalysisReport, JobDescription, PdfQualityReport, CandidateProfileType } from "@/types";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
     let resumeText = "";
     let jdText = "";
     let fileName = "Uploaded_Resume.pdf";
+    let candidateProfile: CandidateProfileType = "not_specified";
+    let additionalContext = "";
 
     let fileType = "Pasted Text";
     let fileSize = "Not evaluated";
@@ -29,7 +31,12 @@ export async function POST(req: NextRequest) {
       const resumeFile = formData.get("resumeFile") as File | null;
       const rawResumeText = formData.get("resumeText") as string | null;
       const rawJdText = formData.get("jdText") as string | null;
+      const rawProfile = formData.get("candidateProfile") as CandidateProfileType | null;
+      const rawContext = formData.get("additionalContext") as string | null;
       const useSample = formData.get("useSample") === "true";
+
+      if (rawProfile) candidateProfile = rawProfile;
+      if (rawContext) additionalContext = rawContext.slice(0, 500);
 
       if (useSample) {
         resumeText = SAMPLE_RESUME_TEXT;
@@ -81,6 +88,8 @@ export async function POST(req: NextRequest) {
       resumeText = body.resumeText || "";
       jdText = body.jdText || "";
       fileName = body.fileName || "Uploaded_Resume.txt";
+      if (body.candidateProfile) candidateProfile = body.candidateProfile;
+      if (body.additionalContext) additionalContext = body.additionalContext.slice(0, 500);
     }
 
     if (!resumeText || resumeText.trim().length < 30) {
@@ -102,11 +111,11 @@ export async function POST(req: NextRequest) {
       preferredSkills: [],
     };
 
-    // 3. Calculate Core Metrics
-    const atsScore = calculateAtsScore(parsedResume, jobDescription);
+    // 3. Calculate Core Metrics with Candidate Profile Stage
+    const atsScore = calculateAtsScore(parsedResume, jobDescription, candidateProfile);
     const jobMatch = matchResumeToJd(parsedResume, jobDescription);
     const skillsGap = analyzeSkillsGap(parsedResume, jobDescription);
-    const aiSuggestions = await generateAiSuggestions(parsedResume, jobDescription);
+    const aiSuggestions = await generateAiSuggestions(parsedResume, jobDescription, candidateProfile, additionalContext);
     const grammar = analyzeGrammarAndReadability(resumeText);
 
     // 4. Compute Document Parsing & Quality Report
@@ -203,6 +212,8 @@ export async function POST(req: NextRequest) {
       aiSuggestions,
       grammar,
       pdfQuality,
+      candidateProfile,
+      additionalContext,
     };
 
     return NextResponse.json(report);

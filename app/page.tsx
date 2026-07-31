@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { Sidebar, TabType } from "@/components/Sidebar";
 import { ResumeUploader } from "@/components/ResumeUploader";
 import { JobDescriptionInput } from "@/components/JobDescriptionInput";
+import { CandidateProfileInput } from "@/components/CandidateProfileInput";
 import { SummaryTab } from "@/components/SummaryTab";
 import { AtsScoreTab } from "@/components/AtsScoreTab";
 import { JobMatchTab } from "@/components/JobMatchTab";
@@ -12,9 +13,9 @@ import { SkillsGapTab } from "@/components/SkillsGapTab";
 import { AiSuggestionsTab } from "@/components/AiSuggestionsTab";
 import { GrammarTab } from "@/components/GrammarTab";
 import { ReportTab } from "@/components/ReportTab";
-import { CompleteAnalysisReport } from "@/types";
+import { CompleteAnalysisReport, CandidateProfileType } from "@/types";
 import { SAMPLE_RESUME_TEXT, SAMPLE_JOB_DESCRIPTION_TEXT } from "@/lib/sample-data";
-import { Sparkles, ArrowRight, Loader2, AlertCircle, ShieldCheck, Zap, Award, Trash2, Lock, ChevronDown, ChevronUp } from "lucide-react";
+import { Sparkles, ArrowRight, Loader2, AlertCircle, ShieldCheck, Zap, Award, Trash2, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 
 export default function DashboardPage() {
   const [darkMode, setDarkMode] = useState(false);
@@ -26,6 +27,11 @@ export default function DashboardPage() {
   const [jdText, setJdText] = useState("");
   const [selectedRoleId, setSelectedRoleId] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+
+  const [candidateProfile, setCandidateProfile] = useState<CandidateProfileType>("not_specified");
+  const [additionalContext, setAdditionalContext] = useState("");
+  const [analyzedProfile, setAnalyzedProfile] = useState<CandidateProfileType | null>(null);
+  const [analyzedContext, setAnalyzedContext] = useState<string | null>(null);
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisReport, setAnalysisReport] = useState<CompleteAnalysisReport | null>(null);
@@ -40,6 +46,10 @@ export default function DashboardPage() {
     }
   }, [darkMode]);
 
+  const isProfileOutdated = !!analysisReport && analyzedProfile !== null && (
+    candidateProfile !== analyzedProfile || additionalContext !== analyzedContext
+  );
+
   const handleAnalyze = async (overrideSample = false) => {
     setIsAnalyzing(true);
     setError(null);
@@ -49,6 +59,8 @@ export default function DashboardPage() {
 
       if (overrideSample) {
         formData.append("useSample", "true");
+        formData.append("candidateProfile", candidateProfile);
+        formData.append("additionalContext", additionalContext);
       } else {
         if (file) {
           formData.append("resumeFile", file);
@@ -61,6 +73,9 @@ export default function DashboardPage() {
         if (jdText) {
           formData.append("jdText", jdText);
         }
+
+        formData.append("candidateProfile", candidateProfile);
+        formData.append("additionalContext", additionalContext);
       }
 
       const res = await fetch("/api/analyze", {
@@ -75,6 +90,8 @@ export default function DashboardPage() {
       }
 
       setAnalysisReport(data);
+      setAnalyzedProfile(candidateProfile);
+      setAnalyzedContext(additionalContext);
       setActiveTab("ats"); // Automatically switch to ATS Score tab upon success
     } catch (err: any) {
       console.error(err);
@@ -90,6 +107,8 @@ export default function DashboardPage() {
     setJdText(SAMPLE_JOB_DESCRIPTION_TEXT);
     setSelectedRoleId("data-analyst");
     setSelectedCategory("Data, AI & Analytics");
+    setCandidateProfile("student");
+    setAdditionalContext("I'm a student focusing on data analytics projects and machine learning coursework.");
     handleAnalyze(true);
   };
 
@@ -138,6 +157,10 @@ export default function DashboardPage() {
     setJdText("");
     setSelectedRoleId("");
     setSelectedCategory("");
+    setCandidateProfile("not_specified");
+    setAdditionalContext("");
+    setAnalyzedProfile(null);
+    setAnalyzedContext(null);
     setAnalysisReport(null);
     setError(null);
     setActiveTab("home");
@@ -195,6 +218,22 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {isProfileOutdated && (
+            <div className="p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm font-medium shadow-sm">
+              <div className="flex items-center space-x-3">
+                <RefreshCw className="h-5 w-5 text-amber-600 animate-spin-slow shrink-0" />
+                <span>Candidate profile or context changed. Run analysis again to update your results according to the new profile stage.</span>
+              </div>
+              <button
+                onClick={() => handleAnalyze(false)}
+                disabled={isAnalyzing}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-xs shrink-0 self-start sm:self-auto transition-all"
+              >
+                Re-run Analysis
+              </button>
+            </div>
+          )}
+
           {/* TAB 1: HOME / UPLOAD & HERO */}
           {activeTab === "home" && (
             <div className="space-y-5 sm:space-y-8">
@@ -205,7 +244,7 @@ export default function DashboardPage() {
                 <div className="max-w-2xl space-y-3 sm:space-y-4 relative z-10">
                   <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-300 text-[11px] sm:text-xs font-semibold">
                     <Sparkles className="h-3.5 w-3.5 shrink-0" />
-                    <span>Next-Gen Candidate ATS Optimization</span>
+                    <span>Profile-Aware Candidate ATS Optimization</span>
                   </div>
 
                   <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
@@ -213,7 +252,7 @@ export default function DashboardPage() {
                   </h2>
 
                   <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                    Upload your PDF or Word resume alongside any target Job Description. Our multi-stage NLP & TF-IDF algorithms calculate ATS scores, identify skills gaps, generate AI bullet rewrites, and export downloadable PDF audit reports.
+                    Upload your resume alongside any target Job Description. Select your career stage (Student, Intern, Experienced, Career Switcher) for fair section completeness evaluation, ATS scoring, and AI bullet rewrites.
                   </p>
 
                   <div className="flex flex-wrap gap-3 pt-2">
@@ -258,7 +297,7 @@ export default function DashboardPage() {
                 </div>
                 <div className={`${isPrivacyExpanded ? "block" : "hidden sm:block"}`}>
                   <p className="leading-relaxed text-slate-300 dark:text-slate-400 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800 sm:border-transparent">
-                    Uploaded resume files, extracted text, and job descriptions are processed <strong>strictly in-memory</strong> during your active session. No database, server disk storage, tracking cookies, or persistent storage are used to store your resume content. When AI suggestions are generated, text snippets are analyzed via the Google Gemini API. Use the <strong>Clear Resume / Clear Session</strong> control below at any time to purge all browser state.
+                    Uploaded resume files, extracted text, and job descriptions are processed <strong>strictly in-memory</strong> during your active session. No database, server disk storage, tracking cookies, or persistent storage are used. Candidate Profile context cannot manipulate numerical ATS scores. Use the <strong>Clear Resume / Clear Session</strong> control below at any time to purge all browser state.
                   </p>
                 </div>
               </div>
@@ -282,6 +321,14 @@ export default function DashboardPage() {
                 />
               </div>
 
+              {/* Candidate Profile & Additional Context Selector */}
+              <CandidateProfileInput
+                candidateProfile={candidateProfile}
+                setCandidateProfile={setCandidateProfile}
+                additionalContext={additionalContext}
+                setAdditionalContext={setAdditionalContext}
+              />
+
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2">
                 <button
@@ -292,7 +339,7 @@ export default function DashboardPage() {
                   {isAnalyzing ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin shrink-0" />
-                      <span>Analyzing Resume & Matching Keywords...</span>
+                      <span>Analyzing Resume & Profile Stage...</span>
                     </>
                   ) : (
                     <>
@@ -318,18 +365,18 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-2 sm:pt-4">
                 <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 sm:space-y-2">
                   <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6 text-brand-500" />
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">Weighted ATS Engine</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Evaluates 5 pillars: completeness, keyword density, formatting, skills, and readability.</p>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">Profile-Aware ATS Engine</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Evaluates section completeness according to candidate career stage (Student, Intern, Experienced).</p>
                 </div>
                 <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 sm:space-y-2">
                   <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
                   <h4 className="font-bold text-sm text-slate-900 dark:text-white">TF-IDF Vector Matching</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Uses cosine similarity algorithms to measure exact candidate-to-job match percentages.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Uses objective vector similarity math to measure candidate-to-job alignment without stage bias.</p>
                 </div>
                 <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 sm:space-y-2">
                   <Award className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500" />
                   <h4 className="font-bold text-sm text-slate-900 dark:text-white">AI Suggestion Layer</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Generates metric-driven bullet point rewrites and missing tech recommendations via Google Gemini.</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Generates factual, evidence-based bullet rewrites while preserving authentic candidate voice.</p>
                 </div>
               </div>
             </div>

@@ -240,6 +240,14 @@ export interface PdfQualityReport {
   }>;
 }
 
+export type CandidateProfileType =
+  | 'not_specified'
+  | 'student'
+  | 'internship'
+  | 'experienced'
+  | 'career_switcher'
+  | 'other';
+
 export interface CompleteAnalysisReport {
   id: string;
   createdAt: string;
@@ -252,4 +260,6 @@ export interface CompleteAnalysisReport {
   aiSuggestions: AiSuggestionsResult;
   grammar: GrammarAnalysisResult;
   pdfQuality?: PdfQualityReport;
+  candidateProfile?: CandidateProfileType;
+  additionalContext?: string;
 }

@@ -26,6 +26,63 @@ const CLUB_LEADERSHIP_KEYWORDS = [
 
 const INTERN_KEYWORDS = ["intern", "internship", "trainee", "apprentice"];
 
+/**
+ * Segment concatenated text where newline/bullet symbols were lost during PDF text extraction.
+ * Identifies boundary points where a clause ends and a capitalized action verb begins.
+ */
+export function segmentConcatenatedText(text: string): string[] {
+  if (!text || !text.trim()) return [];
+
+  // Strip standalone leading link labels
+  let clean = text.replace(/^(github|gitlab|demo|live demo|view project|project link|repository|repo|website|link)\b[\s:|-]*/i, "").trim();
+
+  // Split by explicit line breaks or bullet symbols first
+  const initialLines = clean.split(/(?:^|\n)\s*[-•*–—\d+\.\)]\s*/).flatMap(l => l.split("\n")).map(l => l.trim()).filter(Boolean);
+
+  const segmented: string[] = [];
+  const actionVerbPattern = /\b(Built|Extracted|Improved|Evaluated|Designed|Defined|Created|Analyzed|Visualized|Developed|Implemented|Integrated|Deployed|Managed|Led|Engineered|Reduced|Increased|Coordinated|Architected|Streamlined|Formulated|Constructed|Crafted|Executed)\b/g;
+
+  for (const line of initialLines) {
+    if (!line) continue;
+
+    let lineClean = line.replace(/^(github|gitlab|demo|live demo|view project|project link|repository|repo|website|link)\b[\s:|-]*/i, "").trim();
+
+    const matches: Array<{ index: number; verb: string }> = [];
+    let match: RegExpExecArray | null;
+
+    actionVerbPattern.lastIndex = 0;
+    while ((match = actionVerbPattern.exec(lineClean)) !== null) {
+      const idx = match.index;
+      if (idx === 0) {
+        matches.push({ index: idx, verb: match[1] });
+      } else {
+        const prevText = lineClean.slice(0, idx);
+        if (/[.!?\)]\s*$/.test(prevText) || /\b\d+(%|k|x)?\s*$/i.test(prevText) || /\s{2,}$/.test(prevText) || /[,;]\s*$/.test(prevText)) {
+          matches.push({ index: idx, verb: match[1] });
+        }
+      }
+    }
+
+    if (matches.length > 1) {
+      for (let i = 0; i < matches.length; i++) {
+        const start = matches[i].index;
+        const end = i < matches.length - 1 ? matches[i + 1].index : lineClean.length;
+        let segment = lineClean.slice(start, end).trim();
+        segment = segment.replace(/^(github|gitlab|demo|live demo|view project|project link|repository|repo|website|link)\b[\s:|-]*/i, "").trim();
+        if (segment.length > 10) {
+          segmented.push(segment);
+        }
+      }
+    } else {
+      if (lineClean.length > 10) {
+        segmented.push(lineClean);
+      }
+    }
+  }
+
+  return segmented;
+}
+
 export function extractResumeData(rawText: string): ParsedResume {
   const lines = rawText.split("\n").map(l => l.trim()).filter(Boolean);
 
@@ -42,7 +99,7 @@ export function extractResumeData(rawText: string): ParsedResume {
   const githubMatch = rawText.match(/(github\.com\/[a-zA-Z0-9_-]+)/i);
   const github = githubMatch ? githubMatch[0] : undefined;
 
-  // Name heuristic: Top non-contact line
+  // Name heuristic
   let name = "Candidate";
   if (lines.length > 0) {
     const firstLine = lines[0];
@@ -175,7 +232,7 @@ function parseSectionsGranular(text: string): ParsedSectionsResult {
     } else if (currentSection === "projects") {
       projects.push({
         title: currentItem.title,
-        description: [currentItem.org, ...currentItem.bullets].filter(Boolean).join(" - "),
+        description: currentItem.bullets.join(" • "),
       });
     } else {
       neutralItems.push(`${currentItem.title} ${currentItem.org ? '| ' + currentItem.org : ''}`);
@@ -247,16 +304,17 @@ function parseSectionsGranular(text: string): ParsedSectionsResult {
       currentSection === "extracurricular"
     ) {
       if (trimmed.startsWith("-") || trimmed.startsWith("•") || trimmed.startsWith("*")) {
+        const cleanBullet = trimmed.replace(/^[-•*]\s*/, "");
+        const segmented = segmentConcatenatedText(cleanBullet);
         if (currentItem) {
-          currentItem.bullets.push(trimmed.replace(/^[-•*]\s*/, ""));
+          currentItem.bullets.push(...segmented);
         } else {
-          neutralItems.push(trimmed.replace(/^[-•*]\s*/, ""));
+          neutralItems.push(...segmented);
         }
       } else {
         if (trimmed.length > 3) {
           flushCurrentItem();
 
-          // Parse role and organization without inventing generic titles
           let title = trimmed;
           let org = "";
           const dateStr = extractDateFromLine(trimmed);
@@ -304,15 +362,58 @@ function parseSectionsGranular(text: string): ParsedSectionsResult {
         });
       }
     } else if (currentSection === "projects") {
-      if (trimmed.startsWith("-") || trimmed.startsWith("•")) {
+      const linkLabelRegex = /^(github|gitlab|demo|live demo|view project|project link|repository|repo|website|link)$/i;
+
+      if (trimmed.includes("|")) {
+        const parts = trimmed.split("|");
+        const titlePart = parts[0].trim();
+        const linkOrDescPart = parts[1] ? parts[1].trim() : "";
+
+        const isPureLinkLabel = linkLabelRegex.test(linkOrDescPart);
+
+        projects.push({
+          title: titlePart,
+          description: isPureLinkLabel ? "" : segmentConcatenatedText(linkOrDescPart).join(" • "),
+          link: isPureLinkLabel ? linkOrDescPart : undefined,
+        });
+      } else if (trimmed.startsWith("-") || trimmed.startsWith("•") || trimmed.startsWith("*")) {
+        const cleanBullet = trimmed.replace(/^[-•*]\s*/, "");
+        const segmented = segmentConcatenatedText(cleanBullet);
         if (projects.length > 0) {
-          projects[projects.length - 1].description += " " + trimmed.replace(/^[-•*]\s*/, "");
+          const currentDesc = projects[projects.length - 1].description;
+          projects[projects.length - 1].description = currentDesc
+            ? `${currentDesc} • ${segmented.join(" • ")}`
+            : segmented.join(" • ");
+        } else {
+          projects.push({
+            title: "Project",
+            description: segmented.join(" • "),
+          });
         }
       } else {
-        projects.push({
-          title: trimmed.split("|")[0] || trimmed,
-          description: trimmed.split("|")[1] || trimmed,
-        });
+        const cleanLine = trimmed.replace(/^(github|gitlab|demo|live demo|view project|project link|repository|repo|website|link)\b[\s:|-]*/i, "").trim();
+        const segmented = segmentConcatenatedText(cleanLine);
+
+        if (segmented.length > 0 && /^(built|designed|analyzed|created|developed|implemented|extracted|improved|evaluated)\b/i.test(segmented[0])) {
+          // Accomplishment line
+          if (projects.length > 0) {
+            const currentDesc = projects[projects.length - 1].description;
+            projects[projects.length - 1].description = currentDesc
+              ? `${currentDesc} • ${segmented.join(" • ")}`
+              : segmented.join(" • ");
+          } else {
+            projects.push({
+              title: "Project",
+              description: segmented.join(" • "),
+            });
+          }
+        } else {
+          // Title line
+          projects.push({
+            title: cleanLine,
+            description: "",
+          });
+        }
       }
     } else if (currentSection === "certifications") {
       certifications.push(trimmed.replace(/^[-•*]\s*/, ""));
@@ -321,7 +422,8 @@ function parseSectionsGranular(text: string): ParsedSectionsResult {
     } else {
       // Neutral unclassified lines
       if (trimmed.length > 10 && !trimmed.startsWith("http")) {
-        neutralItems.push(trimmed);
+        const segmented = segmentConcatenatedText(trimmed);
+        neutralItems.push(...segmented);
       }
     }
   }

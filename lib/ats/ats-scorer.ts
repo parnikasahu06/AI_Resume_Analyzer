@@ -1,8 +1,9 @@
-import { ParsedResume, JobDescription, AtsScoreResult, PillarCheck } from "@/types";
+import { ParsedResume, JobDescription, AtsScoreResult, PillarCheck, CandidateProfileType } from "@/types";
 
 export function calculateAtsScore(
   resume: ParsedResume,
-  jd?: JobDescription
+  jd?: JobDescription,
+  profile: CandidateProfileType = "not_specified"
 ): AtsScoreResult {
   const hasJd = !!(jd && jd.rawText && jd.rawText.trim().length > 10);
 
@@ -11,6 +12,7 @@ export function calculateAtsScore(
   const itemsPresent: string[] = [];
   const itemsMissing: string[] = [];
 
+  // 1. Contact Details (4 pts)
   const hasContact = !!(resume.contact.email && resume.contact.phone);
   if (hasContact) {
     itemsPresent.push("Contact Details (Email & Phone)");
@@ -20,6 +22,7 @@ export function calculateAtsScore(
     sectionsChecks.push({ name: "Contact details (Email & Phone)", status: "Missing", pts: 0, maxPts: 4, detail: "Missing phone number or email address." });
   }
 
+  // 2. Professional Summary (3 pts)
   const hasSummary = !!(resume.summary && resume.summary.length > 30);
   if (hasSummary) {
     itemsPresent.push("Professional Summary");
@@ -29,6 +32,7 @@ export function calculateAtsScore(
     sectionsChecks.push({ name: "Professional summary / profile", status: "Missing", pts: 0, maxPts: 3, detail: "Missing executive summary section." });
   }
 
+  // 3. Skills Section (3 pts)
   const hasSkills = resume.skills.all.length >= 5;
   if (hasSkills) {
     itemsPresent.push("Skills Section");
@@ -38,15 +42,109 @@ export function calculateAtsScore(
     sectionsChecks.push({ name: "Skills section", status: "Missing", pts: 0, maxPts: 3, detail: "Fewer than 5 skills detected." });
   }
 
-  const hasExperience = resume.experience.length > 0 || resume.internships.length > 0;
-  if (hasExperience) {
-    itemsPresent.push("Work Experience / History");
-    sectionsChecks.push({ name: "Work experience / History", status: "Passed", pts: 4, maxPts: 4, detail: `Found ${resume.experience.length + resume.internships.length} experience entries.` });
+  // 4. Profile-Aware Experience / Practical Evidence (4 pts)
+  const isStudentOrInternship = profile === "student" || profile === "internship";
+  const isExperienced = profile === "experienced";
+  const isCareerSwitcher = profile === "career_switcher";
+
+  const hasFormalExperience = resume.experience.length > 0;
+  const hasInternships = resume.internships.length > 0;
+  const hasProjects = resume.projects.length > 0;
+  const hasLeadershipOrVolunteering = resume.leadership.length > 0 || resume.extracurricular.length > 0;
+  const practicalCount = (hasFormalExperience ? 1 : 0) + (hasInternships ? 1 : 0) + resume.projects.length + (hasLeadershipOrVolunteering ? 1 : 0);
+
+  if (isStudentOrInternship) {
+    // Formal employment is NOT mandatory for Students / Internship applicants
+    if (practicalCount > 0) {
+      itemsPresent.push("Practical Experience / Evidence (Projects/Internships)");
+      if (hasFormalExperience) {
+        itemsPresent.push("Formal Work Experience");
+      } else {
+        itemsPresent.push("Formal Work Experience — Not required for selected profile");
+      }
+      sectionsChecks.push({
+        name: "Practical experience / Project evidence",
+        status: "Passed",
+        pts: 4,
+        maxPts: 4,
+        detail: `Demonstrated practical exposure through ${practicalCount} project/internship/activity entry.`
+      });
+    } else {
+      itemsMissing.push("Practical Experience / Projects");
+      sectionsChecks.push({
+        name: "Practical experience / Project evidence",
+        status: "Missing",
+        pts: 0,
+        maxPts: 4,
+        detail: "No practical projects, internships, or technical activities detected."
+      });
+    }
+  } else if (isExperienced) {
+    // Work Experience is mandatory for Experienced Professionals
+    if (hasFormalExperience) {
+      itemsPresent.push("Work Experience / Employment History");
+      sectionsChecks.push({
+        name: "Work experience / Employment history",
+        status: "Passed",
+        pts: 4,
+        maxPts: 4,
+        detail: `Found ${resume.experience.length} professional employment entries.`
+      });
+    } else {
+      itemsMissing.push("Work Experience / Employment History");
+      sectionsChecks.push({
+        name: "Work experience / Employment history",
+        status: "Missing",
+        pts: 0,
+        maxPts: 4,
+        detail: "Work experience is expected for the selected Experienced Professional profile but was not clearly detected."
+      });
+    }
+  } else if (isCareerSwitcher) {
+    if (practicalCount > 0) {
+      itemsPresent.push("Transferable Experience & Relevant Projects");
+      sectionsChecks.push({
+        name: "Transferable experience & project evidence",
+        status: "Passed",
+        pts: 4,
+        maxPts: 4,
+        detail: `Found ${practicalCount} experience/project entries demonstrating transferable capabilities.`
+      });
+    } else {
+      itemsMissing.push("Transferable Experience / Relevant Projects");
+      sectionsChecks.push({
+        name: "Transferable experience & project evidence",
+        status: "Missing",
+        pts: 0,
+        maxPts: 4,
+        detail: "No relevant projects or transferable experience detected."
+      });
+    }
   } else {
-    itemsMissing.push("Work Experience / Employment History");
-    sectionsChecks.push({ name: "Work experience / History", status: "Missing", pts: 0, maxPts: 4, detail: "No employment history or internship section detected." });
+    // Default / Not Specified
+    const hasGeneralExp = hasFormalExperience || hasInternships;
+    if (hasGeneralExp) {
+      itemsPresent.push("Work Experience / History");
+      sectionsChecks.push({
+        name: "Work experience / History",
+        status: "Passed",
+        pts: 4,
+        maxPts: 4,
+        detail: `Found ${resume.experience.length + resume.internships.length} experience entries.`
+      });
+    } else {
+      itemsMissing.push("Work Experience / Employment History");
+      sectionsChecks.push({
+        name: "Work experience / History",
+        status: "Missing",
+        pts: 0,
+        maxPts: 4,
+        detail: "No employment history or internship section detected."
+      });
+    }
   }
 
+  // 5. Education Section (3 pts)
   const hasEducation = resume.education.length > 0;
   if (hasEducation) {
     itemsPresent.push("Education Section");
@@ -56,6 +154,7 @@ export function calculateAtsScore(
     sectionsChecks.push({ name: "Education section", status: "Missing", pts: 0, maxPts: 3, detail: "Missing academic qualifications section." });
   }
 
+  // 6. Projects / Certifications / Achievements (3 pts)
   const hasProjectsOrCerts = resume.projects.length > 0 || resume.certifications.length > 0 || resume.achievements.length > 0;
   if (hasProjectsOrCerts) {
     itemsPresent.push("Projects / Certifications / Achievements");
@@ -100,20 +199,20 @@ export function calculateAtsScore(
   });
   if (!linkedinPass) formattingIssues.push("Missing LinkedIn profile link.");
 
-  const lengthOptimal = resume.wordCount >= 350 && resume.wordCount <= 900;
+  const lengthOptimal = resume.wordCount >= 300 && resume.wordCount <= 950;
   formattingChecks.push({
     name: "Resume length",
     status: lengthOptimal ? "Passed" : "Needs improvement",
     pts: lengthOptimal ? 3 : 1,
     maxPts: 3,
-    detail: lengthOptimal ? `Word count (${resume.wordCount} words) is within ideal range (400-800 words).` : `Word count is ${resume.wordCount} words. Aim for 400-800 words.`
+    detail: lengthOptimal ? `Word count (${resume.wordCount} words) is within ideal range (350-900 words).` : `Word count is ${resume.wordCount} words. Aim for 350-800 words.`
   });
   if (!lengthOptimal) {
-    if (resume.wordCount < 250) formattingIssues.push("Resume is too brief (under 250 words). Aim for 400-800 words.");
+    if (resume.wordCount < 200) formattingIssues.push("Resume is too brief (under 200 words). Expand your projects or skills.");
     else if (resume.wordCount > 1000) formattingIssues.push("Resume is overly lengthy (over 1000 words). Try to condense to 1-2 pages.");
   }
 
-  const structurePass = resume.wordCount >= 200;
+  const structurePass = resume.wordCount >= 180;
   formattingChecks.push({
     name: "ATS-safe structure",
     status: structurePass ? "Passed" : "Needs improvement",
@@ -145,29 +244,29 @@ export function calculateAtsScore(
   // --- Pillar 3: Readability & Impact (Max 20 pts) ---
   const readabilityChecks: PillarCheck[] = [];
 
-  const actionVerbRegex = /\b(spearheaded|architected|developed|engineered|implemented|increased|reduced|optimized|led|designed|built|managed|delivered|migrated|improved)\b/gi;
+  const actionVerbRegex = /\b(spearheaded|architected|developed|engineered|implemented|increased|reduced|optimized|led|designed|built|managed|delivered|migrated|improved|analyzed|evaluated|visualized|created|formulated)\b/gi;
   const verbMatches = resume.rawText.match(actionVerbRegex) || [];
-  const verbPass = verbMatches.length >= 6;
+  const verbPass = verbMatches.length >= 5;
   readabilityChecks.push({
     name: "Action verbs density",
     status: verbPass ? "Passed" : "Needs improvement",
     pts: verbPass ? 6 : verbMatches.length >= 3 ? 3 : 1,
     maxPts: 6,
-    detail: `Found ${verbMatches.length} strong action verbs (e.g. ${verbMatches.slice(0, 3).join(", ") || 'none'}).`
+    detail: `Found ${verbMatches.length} strong action verbs (e.g. ${Array.from(new Set(verbMatches)).slice(0, 3).join(", ") || 'none'}).`
   });
 
   const numberMatches = resume.rawText.match(/\b\d+(%|\+|k|x|\s*percent|\s*dollars|\s*users|\s*teams)?\b/gi) || [];
   const impactCount = numberMatches.length;
-  const impactPass = impactCount >= 4;
+  const impactPass = impactCount >= 3;
   readabilityChecks.push({
     name: "Quantifiable impact metrics",
     status: impactPass ? "Passed" : "Needs improvement",
-    pts: impactPass ? 6 : impactCount >= 2 ? 3 : 1,
+    pts: impactPass ? 6 : impactCount >= 1 ? 3 : 1,
     maxPts: 6,
-    detail: impactPass ? `Includes ${impactCount} quantifiable metrics (%, $, scale numbers).` : `Found only ${impactCount} quantifiable metric. Add specific numbers to bullet points.`
+    detail: impactPass ? `Includes ${impactCount} quantifiable metrics (%, $, scale numbers).` : `Found ${impactCount} quantifiable metric. Add specific numbers to bullet points.`
   });
 
-  const sentenceLengthPass = resume.wordCount >= 300 && resume.wordCount <= 900;
+  const sentenceLengthPass = resume.wordCount >= 250 && resume.wordCount <= 950;
   readabilityChecks.push({
     name: "Average sentence length & word count",
     status: sentenceLengthPass ? "Passed" : "Needs improvement",
@@ -241,16 +340,22 @@ export function calculateAtsScore(
     detail: summaryDepthPass ? "Well-crafted executive summary overview." : "Add a 2-3 sentence professional summary."
   });
 
-  const expDepthPass = (resume.experience.length > 0 && resume.experience[0].description.length >= 2) || (resume.internships.length > 0);
+  // Profile-aware experience/project depth
+  const expDepthPass = isStudentOrInternship
+    ? (resume.projects.length > 0 || resume.internships.length > 0 || resume.experience.length > 0)
+    : (resume.experience.length > 0 && resume.experience[0].description.length >= 1) || resume.internships.length > 0;
+
   contentQualityChecks.push({
-    name: "Work experience bullet depth",
+    name: isStudentOrInternship ? "Practical experience & project depth" : "Work experience bullet depth",
     status: expDepthPass ? "Passed" : "Needs improvement",
     pts: expDepthPass ? 5 : 2,
     maxPts: 5,
-    detail: expDepthPass ? "Detailed bullet points describing accomplishments." : "Expand work experience bullet points."
+    detail: expDepthPass
+      ? (isStudentOrInternship ? "Strong practical project and activity exposure." : "Detailed bullet points describing accomplishments.")
+      : (isStudentOrInternship ? "Add technical projects or practical activities." : "Expand work experience bullet points.")
   });
 
-  const skillsRichnessPass = resume.skills.technical.length >= 6;
+  const skillsRichnessPass = resume.skills.technical.length >= 5;
   contentQualityChecks.push({
     name: "Technical skills richness",
     status: skillsRichnessPass ? "Passed" : "Needs improvement",
@@ -282,7 +387,7 @@ export function calculateAtsScore(
   else if (overallScore >= 50) grade = 'D';
   else grade = 'F';
 
-  // --- Job-Specific Sub-Metrics (Calculated ONLY if JD exists) ---
+  // --- Job-Specific Sub-Metrics (Calculated ONLY if JD exists - Conceptually Separate from ATS Score) ---
   let keywordScore: number | null = null;
   let keywordDensity = 0;
   const frequencyMap: Record<string, number> = {};
@@ -325,7 +430,7 @@ export function calculateAtsScore(
     }
   }
 
-  // Strengths & Weaknesses synthesis
+  // Strengths, Weaknesses & Recommendations
   const strengths: string[] = [];
   const weaknesses: string[] = [];
   const criticalFixes: string[] = [];
@@ -338,13 +443,23 @@ export function calculateAtsScore(
 
   if (itemsMissing.length > 0) {
     recommendations.push({ text: `Missing essential section(s): ${itemsMissing.join(", ")}.`, priority: "Critical", pillar: "Sections" });
-    weaknesses.push("Missing essential sections like Summary, Skills, or Work Experience.");
+    weaknesses.push(`Missing essential section(s): ${itemsMissing.join(", ")}.`);
   } else {
-    strengths.push("Comprehensive section structure with standard headers.");
+    strengths.push("Comprehensive section structure aligned with selected candidate profile.");
   }
 
-  if (resume.wordCount < 250) {
-    recommendations.push({ text: "Resume is shorter than recommended (under 250 words).", priority: "Critical", pillar: "Formatting" });
+  if (isExperienced && !hasFormalExperience) {
+    recommendations.push({ text: "No formal work experience detected for the selected Experienced Professional profile.", priority: "Critical", pillar: "Sections" });
+    weaknesses.push("Work experience is expected for Experienced Professional profile but missing.");
+    criticalFixes.push("Add a dedicated Work Experience section describing professional employment history.");
+  }
+
+  if (isStudentOrInternship && !hasFormalExperience && practicalCount > 0) {
+    strengths.push("Strong practical project experience detected (suitable for student/fresher profile).");
+  }
+
+  if (resume.wordCount < 200) {
+    recommendations.push({ text: "Resume is shorter than recommended (under 200 words).", priority: "Critical", pillar: "Formatting" });
   }
 
   // Important Priority Recommendations
@@ -356,36 +471,15 @@ export function calculateAtsScore(
     recommendations.push({ text: "LinkedIn profile is missing.", priority: "Important", pillar: "Formatting" });
   }
 
-  if (resume.wordCount > 1000) {
-    recommendations.push({ text: "Resume is longer than recommended (over 1000 words). Try to condense to 1-2 pages.", priority: "Important", pillar: "Formatting" });
-  }
-
-  if (impactCount < 4) {
-    recommendations.push({ text: "Project descriptions and work experience bullets lack measurable outcomes.", priority: "Important", pillar: "Impact" });
-    weaknesses.push("Lacks quantifiable metrics. Add specific numbers (%, $, time saved) to bullet points.");
-    criticalFixes.push("Quantify achievements in your Work Experience bullets.");
+  if (impactCount < 3) {
+    recommendations.push({ text: "Project descriptions and bullet points lack measurable outcomes.", priority: "Important", pillar: "Impact" });
+    weaknesses.push("Lacks quantifiable metrics. Add specific numbers (%, scale, time saved) to bullet points.");
   } else {
     strengths.push(`Includes ${impactCount} quantifiable impact metrics (e.g. percentages, growth numbers).`);
   }
 
-  if (verbMatches.length < 6) {
-    recommendations.push({ text: "Some bullets use weak action verbs. Replace with strong verbs like Spearheaded, Engineered, or Architected.", priority: "Important", pillar: "Readability" });
-  }
-
-  // Optional Priority Recommendations
-  if (!resume.contact.github) {
-    recommendations.push({ text: "Consider adding GitHub or portfolio URL to strengthen contact metadata.", priority: "Optional", pillar: "Contact" });
-  }
-
-  if (resume.skills.technical.length < 8) {
-    recommendations.push({ text: "Technical skills section could be expanded with more industry-standard technologies.", priority: "Optional", pillar: "Content Quality" });
-  }
-
-  if (hasJd && skillsScore !== null) {
-    if (skillsScore >= 16) strengths.push(`Strong skills alignment matching ${matchedSkillCount} key skills.`);
-    else weaknesses.push("Gap between technical skills listed and target position expectations.");
-  } else {
-    if (resume.skills.all.length >= 8) strengths.push(`Extracted ${resume.skills.all.length} total technical and soft skills.`);
+  if (verbMatches.length < 5) {
+    recommendations.push({ text: "Some bullets use weak action verbs. Replace with strong verbs like Built, Developed, or Analyzed.", priority: "Important", pillar: "Readability" });
   }
 
   if (formattingIssues.length > 0) {
