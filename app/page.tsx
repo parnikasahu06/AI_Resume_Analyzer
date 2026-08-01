@@ -5,7 +5,6 @@ import { Navbar } from "@/components/Navbar";
 import { Sidebar, TabType } from "@/components/Sidebar";
 import { ResumeUploader } from "@/components/ResumeUploader";
 import { JobDescriptionInput } from "@/components/JobDescriptionInput";
-import { CandidateProfileInput } from "@/components/CandidateProfileInput";
 import { SummaryTab } from "@/components/SummaryTab";
 import { AtsScoreTab } from "@/components/AtsScoreTab";
 import { JobMatchTab } from "@/components/JobMatchTab";
@@ -309,6 +308,10 @@ export default function DashboardPage() {
                   setFile={setFile}
                   rawText={rawText}
                   setRawText={setRawText}
+                  candidateProfile={candidateProfile}
+                  setCandidateProfile={setCandidateProfile}
+                  additionalContext={additionalContext}
+                  setAdditionalContext={setAdditionalContext}
                 />
                 <JobDescriptionInput
                   jdText={jdText}
@@ -320,14 +323,6 @@ export default function DashboardPage() {
                   onClearJd={handleClearJd}
                 />
               </div>
-
-              {/* Candidate Profile & Additional Context Selector */}
-              <CandidateProfileInput
-                candidateProfile={candidateProfile}
-                setCandidateProfile={setCandidateProfile}
-                additionalContext={additionalContext}
-                setAdditionalContext={setAdditionalContext}
-              />
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2">
