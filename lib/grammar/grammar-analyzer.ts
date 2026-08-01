@@ -47,7 +47,7 @@ export function analyzeGrammarAndReadability(rawText: string): GrammarAnalysisRe
     suggestions.push({
       type: "passive",
       message: `Passive voice detected in sentence: "${s.slice(0, 60)}..."`,
-      recommendation: "Rewrite in active voice using strong action verbs (e.g., 'Architected', 'Spearheaded', 'Engineered').",
+      recommendation: "Rewrite in active voice using clear action verbs (e.g., 'Developed', 'Implemented', 'Built', 'Analyzed').",
     });
   });
 
@@ -55,7 +55,7 @@ export function analyzeGrammarAndReadability(rawText: string): GrammarAnalysisRe
     suggestions.push({
       type: "weak_word",
       message: `Weak phrase '${w}' reduces achievement impact.`,
-      recommendation: `Replace '${w}' with impactful action verbs like 'Engineered', 'Optimized', or 'Directed'.`,
+      recommendation: `Replace '${w}' with specific action verbs like 'Developed', 'Implemented', 'Conducted', 'Organized', or 'Built'.`,
     });
   });
 

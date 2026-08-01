@@ -392,26 +392,26 @@ export default function DashboardPage() {
               </div>
 
               {/* Value Proposition Trust Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1 sm:pt-2">
-                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 shadow-xs">
-                  <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0" />
-                  <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Private by Design</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-1">
+                <div className="p-3 sm:p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1 shadow-xs">
+                  <ShieldCheck className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
+                  <h4 className="font-bold text-xs text-slate-900 dark:text-white">Private by Design</h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
                     Your resume is processed in-memory during your session and is never permanently stored.
                   </p>
                 </div>
-                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 shadow-xs">
-                  <Sparkles className="h-5 w-5 text-indigo-500 shrink-0" />
-                  <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Explainable ATS Analysis</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                <div className="p-3 sm:p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1 shadow-xs">
+                  <Sparkles className="h-4.5 w-4.5 text-indigo-500 shrink-0" />
+                  <h4 className="font-bold text-xs text-slate-900 dark:text-white">Explainable ATS Analysis</h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
                     Every score is accompanied by transparent explanations rather than a hidden scoring algorithm.
                   </p>
                 </div>
-                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 shadow-xs">
-                  <UserCheck className="h-5 w-5 text-amber-500 shrink-0" />
-                  <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Designed for Students & Professionals</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Evaluates resumes fairly across different career stages including students, freshers, interns and experienced professionals.
+                <div className="p-3 sm:p-3.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1 shadow-xs">
+                  <UserCheck className="h-4.5 w-4.5 text-amber-500 shrink-0" />
+                  <h4 className="font-bold text-xs text-slate-900 dark:text-white">Designed for All Career Stages</h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
+                    Evaluates resumes fairly across different career stages including students, freshers, interns and professionals.
                   </p>
                 </div>
               </div>

@@ -122,7 +122,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
                   ? "bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-800"
                   : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800"
               }`}>
-                {isSummaryInferred ? "AI Inferred Summary" : "Extracted Summary"}
+                {isSummaryInferred ? "AI Summary" : "Included Summary"}
               </span>
             </div>
             <div className="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200/80 dark:border-slate-700/80 text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium">
@@ -132,15 +132,15 @@ export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
         )}
       </div>
 
-      {/* 2. Extracted Skills Card */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 min-w-0">
-        <div className="flex items-center justify-between">
-          <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white flex items-center space-x-2">
-            <Code className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-500 shrink-0" />
-            <span>Extracted Skills ({skills.all.length})</span>
-          </h3>
-          <span className="text-xs font-semibold text-slate-400">Technical & Soft Skills</span>
-        </div>
+        {/* 2. Extracted Skills Card */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 min-w-0">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white flex items-center space-x-2">
+              <Code className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-500 shrink-0" />
+              <span>Found Skills ({skills.all.length})</span>
+            </h3>
+            <span className="text-xs font-semibold text-slate-400">Technical & Soft Skills</span>
+          </div>
 
         <div className="space-y-3">
           {/* Technical Skills */}
@@ -359,7 +359,7 @@ export const SummaryTab: React.FC<SummaryTabProps> = ({ resume }) => {
             <div className="flex items-center space-x-2">
               <HelpCircle className="h-4 w-4 text-slate-400 shrink-0" />
               <h3 className="font-semibold text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                Additional Parsed Information ({neutralItems.length})
+                Additional Resume Information ({neutralItems.length})
               </h3>
             </div>
             <div className="flex items-center space-x-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400">

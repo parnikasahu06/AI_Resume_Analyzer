@@ -16,7 +16,8 @@ import {
   FileSearch,
   Award,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Sparkles
 } from "lucide-react";
 
 interface AtsScoreTabProps {
@@ -222,6 +223,65 @@ export const AtsScoreTab: React.FC<AtsScoreTabProps> = ({ atsScore }) => {
         </div>
       </div>
 
+      {/* Overall Resume Verdict Card */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3 min-w-0">
+        <div className="flex items-center justify-between">
+          <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-white flex items-center space-x-2">
+            <Sparkles className="h-5 w-5 text-amber-500 shrink-0" />
+            <span>Overall Resume Verdict</span>
+          </h3>
+          <span className={`px-3 py-1 text-xs font-extrabold rounded-full border ${ratingInfo.badgeBg} ${ratingInfo.badgeText} ${ratingInfo.badgeBorder}`}>
+            {ratingInfo.label}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs pt-1">
+          {/* Strengths */}
+          <div className="p-3.5 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/50 rounded-xl space-y-2">
+            <h4 className="font-bold text-xs text-emerald-800 dark:text-emerald-300 flex items-center space-x-1.5">
+              <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+              <span>Biggest Strengths</span>
+            </h4>
+            <ul className="space-y-1.5 text-slate-700 dark:text-slate-300">
+              {strengths.slice(0, 3).map((st, i) => (
+                <li key={i} className="flex items-start space-x-2">
+                  <span className="text-emerald-500 font-bold">•</span>
+                  <span>{st}</span>
+                </li>
+              ))}
+              {strengths.length === 0 && (
+                <li className="flex items-start space-x-2">
+                  <span className="text-emerald-500 font-bold">•</span>
+                  <span>Clean overall layout and readable formatting</span>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          {/* Highest Priority Improvements */}
+          <div className="p-3.5 bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/50 rounded-xl space-y-2">
+            <h4 className="font-bold text-xs text-amber-800 dark:text-amber-300 flex items-center space-x-1.5">
+              <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
+              <span>Highest Priority Improvements</span>
+            </h4>
+            <ul className="space-y-1.5 text-slate-700 dark:text-slate-300">
+              {combinedImprovements.slice(0, 3).map((imp, i) => (
+                <li key={i} className="flex items-start space-x-2">
+                  <span className="text-amber-500 font-bold">•</span>
+                  <span>{imp.text}</span>
+                </li>
+              ))}
+              {combinedImprovements.length === 0 && (
+                <li className="flex items-start space-x-2">
+                  <span className="text-amber-500 font-bold">•</span>
+                  <span>Tailor keywords for each specific job application</span>
+                </li>
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+
       {/* 3. Top Priority Improvements (Top 5) & Key Strengths Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 min-w-0">
         {/* Top Priority Improvements Card */}
@@ -362,22 +422,33 @@ export const AtsScoreTab: React.FC<AtsScoreTabProps> = ({ atsScore }) => {
                   </div>
                 )}
 
-                {/* Passed Checks (What is good) */}
+                {/* Passed Checks (Meaningful Confirmations) */}
                 {passedChecks.length > 0 && (
                   <div className="space-y-1.5">
                     <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">
-                      Passed Checks
+                      Verified Checks
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs">
-                      {passedChecks.map((chk, cIdx) => (
-                        <div key={cIdx} className="p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/50 dark:border-slate-800 flex items-center justify-between gap-2">
-                          <div className="flex items-center space-x-1.5 min-w-0">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                            <span className="font-medium text-slate-700 dark:text-slate-300 truncate">{chk.name}</span>
+                      {passedChecks.map((chk, cIdx) => {
+                        let confirmationText = `✓ ${chk.name} included`;
+                        const lower = chk.name.toLowerCase();
+                        if (lower.includes("contact")) confirmationText = "✓ Contact information included";
+                        else if (lower.includes("education")) confirmationText = "✓ Education section found";
+                        else if (lower.includes("skill")) confirmationText = "✓ Skills section identified";
+                        else if (lower.includes("project")) confirmationText = "✓ Project information included";
+                        else if (lower.includes("experience")) confirmationText = "✓ Work experience formatted cleanly";
+                        else if (lower.includes("summary")) confirmationText = "✓ Professional summary present";
+
+                        return (
+                          <div key={cIdx} className="p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/50 dark:border-slate-800 flex items-center justify-between gap-2">
+                            <div className="flex items-center space-x-1.5 min-w-0">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                              <span className="font-medium text-slate-700 dark:text-slate-300 truncate">{confirmationText}</span>
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-400 shrink-0">+{chk.pts}/{chk.maxPts}</span>
                           </div>
-                          <span className="text-[10px] font-bold text-slate-400 shrink-0">+{chk.pts}/{chk.maxPts}</span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}

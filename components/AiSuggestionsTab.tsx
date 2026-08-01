@@ -30,6 +30,11 @@ export const AiSuggestionsTab: React.FC<AiSuggestionsTabProps> = ({ aiSuggestion
   const needsImpCount = bulletRewrites.filter(b => b.assessment === 'needs_improvement' || b.assessment === 'weak').length;
   const strongCount = bulletRewrites.filter(b => b.assessment === 'strong').length;
 
+  // Filter to display only bullets that benefit from improvement or have concrete rewrites
+  const filteredRewrites = bulletRewrites.filter(
+    (b) => b.assessment !== "strong" || (b.improved && b.improved !== b.original)
+  );
+
   return (
     <div className="space-y-5 sm:space-y-6 min-w-0">
       {/* Top Banner */}
@@ -93,20 +98,21 @@ export const AiSuggestionsTab: React.FC<AiSuggestionsTabProps> = ({ aiSuggestion
               <span>Resume Bullet Evaluation & Targeted Rewrites</span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              {needsImpCount > 0
-                ? `${needsImpCount} high-impact improvement suggestion${needsImpCount > 1 ? 's' : ''} identified (${strongCount} bullet${strongCount !== 1 ? 's' : ''} already strong).`
-                : "All evaluated bullet points are already strong! Minimal refinements suggested."}
+              {filteredRewrites.length > 0
+                ? "Most resume bullets are already well written. Showing only suggestions that could meaningfully improve your resume."
+                : "All evaluated resume bullets are already well written! No major bullet rewrites needed."}
             </p>
           </div>
         </div>
 
         <div className="space-y-4 min-w-0">
-          {bulletRewrites.length === 0 ? (
-            <div className="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-xs text-slate-500 text-center">
-              No descriptive resume bullet points detected for rewrite evaluation.
+          {filteredRewrites.length === 0 ? (
+            <div className="p-4 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 font-semibold flex items-center space-x-2.5">
+              <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+              <span>Most resume bullets are already well written. Showing only suggestions that could meaningfully improve your resume.</span>
             </div>
           ) : (
-            bulletRewrites.map((rewrite, idx) => {
+            filteredRewrites.map((rewrite, idx) => {
               const isStrong = rewrite.assessment === "strong";
               const isNeedsImp = rewrite.assessment === "needs_improvement";
               const isWeak = rewrite.assessment === "weak";

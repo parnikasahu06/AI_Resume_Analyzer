@@ -42,41 +42,46 @@ export const JobMatchTab: React.FC<JobMatchTabProps> = ({ jobMatch }) => {
   const matchScore = matchPercentage ?? 0;
   const matchColors = getScoreColorClass(matchScore);
 
-  // Match Level Badge and Explanation
+  // Dynamic Natural Match Summary
+  const topMatchesStr = matchingSkills.slice(0, 3).join(", ");
+  const topMissingStr = missingSkills.slice(0, 3).join(", ");
+
   const getMatchBadge = (score: number) => {
+    let alignmentText = "Your resume shows moderate alignment with the selected role.";
+    let badgeBg = "bg-amber-100 dark:bg-amber-950/80";
+    let badgeText = "text-amber-700 dark:text-amber-300";
+    let badgeBorder = "border-amber-300 dark:border-amber-800";
+    let label = "Moderate Match";
+
     if (score >= 80) {
-      return {
-        label: "Excellent Match",
-        summary: "Your resume demonstrates excellent alignment with the target role. Key skills and core industry terms are well represented.",
-        badgeBg: "bg-emerald-100 dark:bg-emerald-950/80",
-        badgeText: "text-emerald-700 dark:text-emerald-300",
-        badgeBorder: "border-emerald-300 dark:border-emerald-800",
-      };
+      label = "Excellent Match";
+      alignmentText = "Your resume shows excellent alignment with the selected role.";
+      badgeBg = "bg-emerald-100 dark:bg-emerald-950/80";
+      badgeText = "text-emerald-700 dark:text-emerald-300";
+      badgeBorder = "border-emerald-300 dark:border-emerald-800";
+    } else if (score >= 65) {
+      label = "Strong Match";
+      alignmentText = "Your resume shows strong alignment with the selected role.";
+      badgeBg = "bg-blue-100 dark:bg-blue-950/80";
+      badgeText = "text-blue-700 dark:text-blue-300";
+      badgeBorder = "border-blue-300 dark:border-blue-800";
+    } else if (score < 45) {
+      label = "Weak Match";
+      alignmentText = "Your resume shows low keyword alignment with the selected role.";
+      badgeBg = "bg-rose-100 dark:bg-rose-950/80";
+      badgeText = "text-rose-700 dark:text-rose-300";
+      badgeBorder = "border-rose-300 dark:border-rose-800";
     }
-    if (score >= 65) {
-      return {
-        label: "Strong Match",
-        summary: "Your resume demonstrates strong alignment with the target role. A few secondary skills could be highlighted further.",
-        badgeBg: "bg-blue-100 dark:bg-blue-950/80",
-        badgeText: "text-blue-700 dark:text-blue-300",
-        badgeBorder: "border-blue-300 dark:border-blue-800",
-      };
-    }
-    if (score >= 45) {
-      return {
-        label: "Moderate Match",
-        summary: "This resume demonstrates moderate alignment with the selected role. Core skills are present, but several role-specific technologies are missing.",
-        badgeBg: "bg-amber-100 dark:bg-amber-950/80",
-        badgeText: "text-amber-700 dark:text-amber-300",
-        badgeBorder: "border-amber-300 dark:border-amber-800",
-      };
-    }
+
+    const matchPart = topMatchesStr ? ` Your strongest matches are ${topMatchesStr}.` : "";
+    const missingPart = topMissingStr ? ` The largest opportunities for improvement are ${topMissingStr}.` : "";
+
     return {
-      label: "Weak Match",
-      summary: "Your resume has low keyword overlap with this job description. Consider tailoring your skills, keywords, and project descriptions.",
-      badgeBg: "bg-rose-100 dark:bg-rose-950/80",
-      badgeText: "text-rose-700 dark:text-rose-300",
-      badgeBorder: "border-rose-300 dark:border-rose-800",
+      label,
+      summary: `${alignmentText}${matchPart}${missingPart}`,
+      badgeBg,
+      badgeText,
+      badgeBorder,
     };
   };
 

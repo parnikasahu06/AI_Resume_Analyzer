@@ -178,9 +178,9 @@ export async function POST(req: NextRequest) {
 
     if (parsedResume.wordCount < 250) {
       detectedIssues.push({
-        property: "Extracted Word Count",
+        property: "Resume Word Count",
         status: `${parsedResume.wordCount} words`,
-        explanation: "Resume text is shorter than recommended (aim for 400-800 words for comprehensive ATS evaluation)."
+        explanation: `This resume contains approximately ${parsedResume.wordCount} words. Most technical resumes are typically between 350–700 words, depending on experience level. Consider adding more project details only if they genuinely strengthen your resume.`
       });
     }
 
