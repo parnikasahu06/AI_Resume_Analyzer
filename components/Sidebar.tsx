@@ -10,6 +10,7 @@ import {
   Award,
   CheckSquare,
   Printer,
+  Lock,
 } from "lucide-react";
 
 export type TabType =
@@ -45,7 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   hasAnalysis,
 }) => {
   return (
-    <aside className="hidden md:block w-64 shrink-0 bg-slate-50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 p-4 space-y-1">
+    <aside className="hidden md:block w-56 shrink-0 bg-slate-50 dark:bg-slate-900/50 border-r border-slate-200 dark:border-slate-800 p-4 space-y-1">
       <div className="px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
         Navigation
       </div>
@@ -71,9 +72,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-slate-500 dark:text-slate-400"}`} />
               <span>{tab.label}</span>
               {tab.reqAnalysis && !hasAnalysis && (
-                <span className="ml-auto text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded font-mono">
-                  Lock
-                </span>
+                <Lock className="ml-auto h-3.5 w-3.5 text-slate-400 dark:text-slate-600 shrink-0" />
               )}
             </button>
           );

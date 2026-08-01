@@ -15,7 +15,7 @@ import { GrammarTab } from "@/components/GrammarTab";
 import { ReportTab } from "@/components/ReportTab";
 import { CompleteAnalysisReport, CandidateProfileType } from "@/types";
 import { SAMPLE_RESUME_TEXT, SAMPLE_JOB_DESCRIPTION_TEXT } from "@/lib/sample-data";
-import { Sparkles, ArrowRight, Loader2, AlertCircle, ShieldCheck, Zap, Award, Trash2, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
+import { Sparkles, ArrowRight, Loader2, AlertCircle, ShieldCheck, Zap, Award, Trash2, ChevronDown, ChevronUp, RefreshCw, UserCheck } from "lucide-react";
 
 export default function DashboardPage() {
   const [darkMode, setDarkMode] = useState(false);
@@ -34,6 +34,7 @@ export default function DashboardPage() {
   const [analyzedContext, setAnalyzedContext] = useState<string | null>(null);
 
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [loadingStep, setLoadingStep] = useState("Extracting resume text & contact metadata...");
   const [analysisReport, setAnalysisReport] = useState<CompleteAnalysisReport | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,6 +54,11 @@ export default function DashboardPage() {
   const handleAnalyze = async (overrideSample = false) => {
     setIsAnalyzing(true);
     setError(null);
+    setLoadingStep("Extracting resume text & contact metadata...");
+
+    const t1 = setTimeout(() => setLoadingStep("Evaluating 5-pillar ATS compatibility score..."), 700);
+    const t2 = setTimeout(() => setLoadingStep("Calculating job description alignment & skills gap..."), 1500);
+    const t3 = setTimeout(() => setLoadingStep("Generating AI bullet rewrites & suggestions..."), 2500);
 
     try {
       const formData = new FormData();
@@ -86,7 +92,7 @@ export default function DashboardPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Failed to analyze resume.");
+        throw new Error(data.error || "Failed to analyze resume. Please verify file format and try again.");
       }
 
       setAnalysisReport(data);
@@ -95,8 +101,11 @@ export default function DashboardPage() {
       setActiveTab("ats"); // Automatically switch to ATS Score tab upon success
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "An unexpected error occurred.");
+      setError(err.message || "An unexpected error occurred. Please try uploading your resume again.");
     } finally {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
       setIsAnalyzing(false);
     }
   };
@@ -202,7 +211,17 @@ export default function DashboardPage() {
         />
 
         {/* Content Area */}
-        <main className="flex-1 p-3 sm:p-6 lg:p-8 space-y-5 sm:space-y-6 overflow-y-auto min-w-0">
+        <main className="flex-1 p-3 sm:p-5 lg:p-6 space-y-4 sm:space-y-5 overflow-y-auto min-w-0">
+          {isAnalyzing && (
+            <div className="p-4 bg-brand-50/80 dark:bg-brand-950/60 border border-brand-200 dark:border-brand-800 text-brand-900 dark:text-brand-100 rounded-2xl flex items-center space-x-3.5 shadow-sm animate-pulse">
+              <Loader2 className="h-5 w-5 text-brand-600 dark:text-brand-400 animate-spin shrink-0" />
+              <div>
+                <p className="font-bold text-xs sm:text-sm">Analyzing Resume & Job Alignment...</p>
+                <p className="text-xs text-brand-700 dark:text-brand-300 mt-0.5 font-medium">{loadingStep}</p>
+              </div>
+            </div>
+          )}
+
           {error && (
             <div className="p-4 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-200 rounded-2xl flex items-center justify-between text-xs sm:text-sm font-medium shadow-sm">
               <div className="flex items-center space-x-3">
@@ -236,32 +255,32 @@ export default function DashboardPage() {
 
           {/* TAB 1: HOME / UPLOAD & HERO */}
           {activeTab === "home" && (
-            <div className="space-y-5 sm:space-y-8">
-              {/* Hero Banner Card */}
-              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-slate-900 via-brand-950 to-indigo-950 p-5 sm:p-8 lg:p-10 text-white shadow-xl border border-brand-900/40">
+            <div className="space-y-4 sm:space-y-5">
+              {/* Hero Banner Card (Reduced height by ~35-40%) */}
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-tr from-slate-900 via-brand-950 to-indigo-950 p-4 sm:p-5 lg:p-6 text-white shadow-lg border border-brand-900/40">
                 <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
                 
-                <div className="max-w-2xl space-y-3 sm:space-y-4 relative z-10">
-                  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-300 text-[11px] sm:text-xs font-semibold">
-                    <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                <div className="max-w-2xl space-y-2.5 sm:space-y-3 relative z-10">
+                  <div className="inline-flex items-center space-x-2 px-2.5 py-0.5 rounded-full bg-brand-500/20 border border-brand-400/30 text-brand-300 text-[11px] font-semibold">
+                    <Sparkles className="h-3 w-3 shrink-0" />
                     <span>Profile-Aware Candidate ATS Optimization</span>
                   </div>
 
-                  <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight leading-snug">
                     Optimize Your Resume for <span className="bg-gradient-to-r from-brand-300 via-indigo-200 to-amber-200 bg-clip-text text-transparent">Applicant Tracking Systems</span>
                   </h2>
 
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl font-normal line-clamp-2">
                     Upload your resume alongside any target Job Description. Select your career stage (Student, Intern, Experienced, Career Switcher) for fair section completeness evaluation, ATS scoring, and AI bullet rewrites.
                   </p>
 
-                  <div className="flex flex-wrap gap-3 pt-2">
+                  <div className="flex flex-wrap gap-2.5 pt-1">
                     <button
                       onClick={handleLoadSample}
                       disabled={isAnalyzing}
-                      className="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-brand-600/30 transition-all flex items-center justify-center space-x-2 min-h-[44px]"
+                      className="w-full sm:w-auto px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md shadow-brand-600/30 transition-all flex items-center justify-center space-x-2 min-h-[40px]"
                     >
-                      <Sparkles className="h-4 w-4 text-amber-300 shrink-0" />
+                      <Sparkles className="h-3.5 w-3.5 text-amber-300 shrink-0" />
                       <span>Try Instant Demo Analysis</span>
                     </button>
                   </div>
@@ -269,7 +288,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Data Privacy Notice Banner */}
-              <div className="p-4 bg-slate-900 dark:bg-slate-900/90 border border-slate-800 rounded-2xl text-slate-300 text-xs space-y-2 shadow-sm">
+              <div className="p-3.5 sm:p-4 bg-slate-900 dark:bg-slate-900/90 border border-slate-800 rounded-2xl text-slate-300 text-xs space-y-1.5 shadow-sm">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center space-x-2 text-white font-bold text-xs sm:text-sm min-w-0">
                     <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
@@ -303,9 +322,9 @@ export default function DashboardPage() {
               </div>
 
               {/* Upload & Setup Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5 min-w-0">
                 {/* LEFT COLUMN: Card 1 (Upload Resume) & Card 2 (Candidate Profile) */}
-                <div className="space-y-6 flex flex-col min-w-0">
+                <div className="space-y-4 sm:space-y-5 flex flex-col min-w-0">
                   <ResumeUploader
                     file={file}
                     setFile={setFile}
@@ -335,12 +354,12 @@ export default function DashboardPage() {
               </div>
 
               {/* Action Buttons & Sub-caption */}
-              <div className="flex flex-col items-center justify-center space-y-3 pt-2">
+              <div className="flex flex-col items-center justify-center space-y-2.5 pt-1">
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
                   <button
                     onClick={() => handleAnalyze(false)}
                     disabled={isAnalyzing || (!file && !rawText.trim())}
-                    className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-brand-500/25 transition-all flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-98 min-h-[48px]"
+                    className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-brand-500/25 transition-all flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-98 min-h-[48px]"
                   >
                     {isAnalyzing ? (
                       <>
@@ -359,7 +378,7 @@ export default function DashboardPage() {
                     <button
                       onClick={handleClearSession}
                       disabled={isAnalyzing}
-                      className="w-full sm:w-auto px-5 sm:px-6 py-3.5 sm:py-4 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-800 font-bold text-sm rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm min-h-[48px]"
+                      className="w-full sm:w-auto px-5 sm:px-6 py-3.5 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-800 font-bold text-sm rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm min-h-[48px]"
                     >
                       <Trash2 className="h-4 w-4 text-rose-500 shrink-0" />
                       <span>Clear Resume / Clear Session</span>
@@ -372,22 +391,28 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              {/* Value Proposition Highlights */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-2 sm:pt-4">
-                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 sm:space-y-2">
-                  <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6 text-brand-500" />
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">Profile-Aware ATS Engine</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Evaluates section completeness according to candidate career stage (Student, Intern, Experienced).</p>
+              {/* Value Proposition Trust Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1 sm:pt-2">
+                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 shadow-xs">
+                  <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0" />
+                  <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Private by Design</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Your resume is processed in-memory during your session and is never permanently stored.
+                  </p>
                 </div>
-                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 sm:space-y-2">
-                  <Zap className="h-5 w-5 sm:h-6 sm:w-6 text-amber-500" />
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">TF-IDF Vector Matching</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Uses objective vector similarity math to measure candidate-to-job alignment without stage bias.</p>
+                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 shadow-xs">
+                  <Sparkles className="h-5 w-5 text-indigo-500 shrink-0" />
+                  <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Explainable ATS Analysis</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Every score is accompanied by transparent explanations rather than a hidden scoring algorithm.
+                  </p>
                 </div>
-                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 sm:space-y-2">
-                  <Award className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-500" />
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">AI Suggestion Layer</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Generates factual, evidence-based bullet rewrites while preserving authentic candidate voice.</p>
+                <div className="p-4 sm:p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl space-y-1.5 shadow-xs">
+                  <UserCheck className="h-5 w-5 text-amber-500 shrink-0" />
+                  <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">Designed for Students & Professionals</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Evaluates resumes fairly across different career stages including students, freshers, interns and experienced professionals.
+                  </p>
                 </div>
               </div>
             </div>

@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   AI Resume Analyzer
                 </h1>
                 <span className="hidden min-[380px]:inline-flex px-1.5 py-0.5 text-[9px] sm:text-[10px] font-extrabold uppercase tracking-wider bg-brand-50 dark:bg-brand-950/60 text-brand-600 dark:text-brand-400 border border-brand-200 dark:border-brand-800 rounded-full shrink-0">
-                  ATS v2.4
+                  v3.0 RC-1
                 </span>
               </div>
               <p className="hidden md:block text-xs text-slate-500 dark:text-slate-400">
@@ -91,10 +91,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onLoadSample}
               disabled={isAnalyzing}
               className="hidden sm:inline-flex items-center space-x-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/70 transition-all disabled:opacity-50 min-h-[38px]"
-              title="Load sample resume and job description to quickly test the application"
+              title="Load sample resume and job description to test the application"
             >
               <FileText className="h-3.5 w-3.5" />
-              <span>Load Demo Resume & JD</span>
+              <span>Try Sample Resume</span>
             </button>
 
             {/* Clear Session Control Button */}
@@ -161,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   AI Resume Analyzer
                 </span>
                 <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">
-                  ATS v2.4 Navigation
+                  v3.0 RC-1 Navigation
                 </span>
               </div>
             </div>
@@ -197,9 +197,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-white" : "text-slate-500 dark:text-slate-400"}`} />
                   <span className="truncate">{tab.label}</span>
                   {tab.reqAnalysis && !hasAnalysis && (
-                    <span className="ml-auto text-[10px] bg-slate-200 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded font-mono shrink-0">
-                      Lock
-                    </span>
+                    <Lock className="ml-auto h-3.5 w-3.5 text-slate-400 shrink-0" />
                   )}
                 </button>
               );
@@ -218,7 +216,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 text-xs font-semibold rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/70 transition-all disabled:opacity-50 min-h-[44px]"
           >
             <FileText className="h-4 w-4" />
-            <span>Load Demo Resume & JD</span>
+            <span>Try Sample Resume</span>
           </button>
         </div>
       </div>

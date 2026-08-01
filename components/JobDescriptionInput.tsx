@@ -61,7 +61,7 @@ export const JobDescriptionInput: React.FC<JobDescriptionInputProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4 min-w-0">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 min-w-0">
       {/* Header Row */}
       <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
         <div>
