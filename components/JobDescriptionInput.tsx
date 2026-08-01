@@ -61,16 +61,16 @@ export const JobDescriptionInput: React.FC<JobDescriptionInputProps> = ({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-sm space-y-4 min-w-0">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4 min-w-0">
       {/* Header Row */}
-      <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-2.5">
+      <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3">
         <div>
-          <h3 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white flex items-center space-x-2">
-            <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+          <h3 className="font-semibold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+            <Briefcase className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
             <span>2. Target Job Description</span>
           </h3>
-          <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
-            Choose a common target role or paste your custom job description
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Choose a target role from our library or paste a custom job description.
           </p>
         </div>
 
@@ -78,7 +78,7 @@ export const JobDescriptionInput: React.FC<JobDescriptionInputProps> = ({
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg text-xs font-medium self-start xs:self-auto shrink-0">
           <button
             onClick={() => setActiveTab("preset")}
-            className={`px-2.5 sm:px-3 py-1 rounded-md transition-all min-h-[36px] ${
+            className={`px-3 py-1 rounded-md transition-all min-h-[36px] ${
               activeTab === "preset"
                 ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold"
                 : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -88,7 +88,7 @@ export const JobDescriptionInput: React.FC<JobDescriptionInputProps> = ({
           </button>
           <button
             onClick={() => setActiveTab("custom")}
-            className={`px-2.5 sm:px-3 py-1 rounded-md transition-all min-h-[36px] ${
+            className={`px-3 py-1 rounded-md transition-all min-h-[36px] ${
               activeTab === "custom"
                 ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm font-semibold"
                 : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
@@ -257,8 +257,8 @@ export const JobDescriptionInput: React.FC<JobDescriptionInputProps> = ({
           value={jdText}
           onChange={(e) => setJdText(e.target.value)}
           placeholder="Paste Job Description requirements, responsibilities, and key tech stack here..."
-          rows={6}
-          className="w-full p-3.5 text-xs text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all resize-y min-w-0 leading-relaxed font-mono"
+          rows={4}
+          className="w-full p-3.5 text-xs text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all resize-y min-w-0 leading-relaxed font-mono min-h-[140px]"
         />
       </div>
     </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Sidebar, TabType } from "@/components/Sidebar";
 import { ResumeUploader } from "@/components/ResumeUploader";
+import { CandidateProfileCard } from "@/components/CandidateProfileCard";
 import { JobDescriptionInput } from "@/components/JobDescriptionInput";
 import { SummaryTab } from "@/components/SummaryTab";
 import { AtsScoreTab } from "@/components/AtsScoreTab";
@@ -301,59 +302,74 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Upload Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 min-w-0">
-                <ResumeUploader
-                  file={file}
-                  setFile={setFile}
-                  rawText={rawText}
-                  setRawText={setRawText}
-                  candidateProfile={candidateProfile}
-                  setCandidateProfile={setCandidateProfile}
-                  additionalContext={additionalContext}
-                  setAdditionalContext={setAdditionalContext}
-                />
-                <JobDescriptionInput
-                  jdText={jdText}
-                  setJdText={setJdText}
-                  selectedRoleId={selectedRoleId}
-                  setSelectedRoleId={setSelectedRoleId}
-                  selectedCategory={selectedCategory}
-                  setSelectedCategory={setSelectedCategory}
-                  onClearJd={handleClearJd}
-                />
+              {/* Upload & Setup Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-w-0">
+                {/* LEFT COLUMN: Card 1 (Upload Resume) & Card 2 (Candidate Profile) */}
+                <div className="space-y-6 flex flex-col min-w-0">
+                  <ResumeUploader
+                    file={file}
+                    setFile={setFile}
+                    rawText={rawText}
+                    setRawText={setRawText}
+                  />
+                  <CandidateProfileCard
+                    candidateProfile={candidateProfile}
+                    setCandidateProfile={setCandidateProfile}
+                    additionalContext={additionalContext}
+                    setAdditionalContext={setAdditionalContext}
+                  />
+                </div>
+
+                {/* RIGHT COLUMN: Card 3 (Target Job Description) */}
+                <div className="flex flex-col min-w-0">
+                  <JobDescriptionInput
+                    jdText={jdText}
+                    setJdText={setJdText}
+                    selectedRoleId={selectedRoleId}
+                    setSelectedRoleId={setSelectedRoleId}
+                    selectedCategory={selectedCategory}
+                    setSelectedCategory={setSelectedCategory}
+                    onClearJd={handleClearJd}
+                  />
+                </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2">
-                <button
-                  onClick={() => handleAnalyze(false)}
-                  disabled={isAnalyzing || (!file && !rawText.trim())}
-                  className="w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-brand-500/25 transition-all flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-98 min-h-[48px]"
-                >
-                  {isAnalyzing ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin shrink-0" />
-                      <span>Analyzing Resume & Profile Stage...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Run AI ATS Resume Analysis</span>
-                      <ArrowRight className="h-5 w-5 shrink-0" />
-                    </>
-                  )}
-                </button>
-
-                {hasActiveData && (
+              {/* Action Buttons & Sub-caption */}
+              <div className="flex flex-col items-center justify-center space-y-3 pt-2">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 w-full sm:w-auto">
                   <button
-                    onClick={handleClearSession}
-                    disabled={isAnalyzing}
-                    className="w-full sm:w-auto px-5 sm:px-6 py-3.5 sm:py-4 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-800 font-bold text-sm rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm min-h-[48px]"
+                    onClick={() => handleAnalyze(false)}
+                    disabled={isAnalyzing || (!file && !rawText.trim())}
+                    className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-brand-500/25 transition-all flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-98 min-h-[48px]"
                   >
-                    <Trash2 className="h-4 w-4 text-rose-500 shrink-0" />
-                    <span>Clear Resume / Clear Session</span>
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin shrink-0" />
+                        <span>Analyzing Resume...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Analyze Resume</span>
+                        <ArrowRight className="h-5 w-5 shrink-0" />
+                      </>
+                    )}
                   </button>
-                )}
+
+                  {hasActiveData && (
+                    <button
+                      onClick={handleClearSession}
+                      disabled={isAnalyzing}
+                      className="w-full sm:w-auto px-5 sm:px-6 py-3.5 sm:py-4 bg-white dark:bg-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-300 border border-slate-200 dark:border-slate-700 hover:border-rose-300 dark:hover:border-rose-800 font-bold text-sm rounded-2xl transition-all flex items-center justify-center space-x-2 shadow-sm min-h-[48px]"
+                    >
+                      <Trash2 className="h-4 w-4 text-rose-500 shrink-0" />
+                      <span>Clear Resume / Clear Session</span>
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium tracking-wide text-center">
+                  ATS • Job Match • Skills Gap • Grammar • AI Suggestions
+                </p>
               </div>
 
               {/* Value Proposition Highlights */}
